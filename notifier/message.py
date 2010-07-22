@@ -3,7 +3,7 @@ Base classes for the binary BT protocol and C decoder wrapper.
 """
 
 import struct
-from mod import wbin
+import wbin
 
 NONE_ID = 0
 INT_ID = 1

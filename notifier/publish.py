@@ -16,8 +16,8 @@ import select
 
 import message
 from util import applog
-from btserv import command
-from btserv import server
+import command
+import server
 from gogreen import coro
 
 from configs.config import config

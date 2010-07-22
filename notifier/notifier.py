@@ -31,9 +31,9 @@ coro.socket_emulate()
 
 import message
 from util import interval
-from btserv import command
-from btserv import server
-from btserv import ntree
+import command
+import server
+import ntree
 
 from configs.config import config
 
