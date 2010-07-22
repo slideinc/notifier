@@ -30,7 +30,6 @@ import exceptions
 coro.socket_emulate()
 
 import message
-from util import interval
 import command
 import server
 import ntree
@@ -1729,12 +1728,10 @@ class NotifyServer(coro.Thread):
             self.peer_ping()
 
     def peer_wait(self, active = 60.0, passive = 5.0, retry = 2):
-        active  = interval.Timeout(active)
-        passive = interval.Timeout(passive)
         timeout = max(active, passive)
         
         while not self._smap and timeout:
-            self._peerwait.wait(timeout())
+            self._peerwait.wait(timeout)
 
         if not self._smap:
             return False
@@ -1757,7 +1754,7 @@ class NotifyServer(coro.Thread):
             if not wait:
                 timeout = passive
 
-            self._peerwait.wait(timeout())
+            self._peerwait.wait(timeout)
 
         return bool(full)
     #
