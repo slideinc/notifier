@@ -1,4 +1,4 @@
-"""BinNew
+"""message
 Base classes for the binary BT protocol and C decoder wrapper.
 """
 

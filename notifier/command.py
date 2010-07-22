@@ -10,7 +10,7 @@ import select
 import struct
 import errno
 
-from util import BinNew
+import message
 
 COMMAND_READ_SIZE = 32*1024
 
@@ -23,7 +23,7 @@ class ReadWriter(object):
         self._recv_data = ''
         self._recv_size = 0
         self._send_data = ''
-        self.serializer = BinNew.BinSerializer(**kwargs)
+        self.serializer = message.BinSerializer(**kwargs)
 
     def send_size(self):
         return len(self._send_data)

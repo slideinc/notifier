@@ -29,7 +29,7 @@ import exceptions
 
 coro.socket_emulate()
 
-from util import BinNew
+import message
 from util import interval
 from btserv import command
 from btserv import server
@@ -542,7 +542,7 @@ class NotifyClientBase(coro.Thread):
 
         self._lastrecv = time.time()
 
-        if not isinstance(cmd, BinNew.Push):
+        if not isinstance(cmd, message.Push):
             self.warn("Unknown type: %s", type(cmd))
             return True
 
@@ -582,7 +582,7 @@ class NotifyClientBase(coro.Thread):
             return None
 
         if self._idletime < (time.time() - self._lastsend):
-            self._send_q.append(BinNew.Push('ping', {}))
+            self._send_q.append(message.Push('ping', {}))
 
     def bump(self):
         if self._peer_ver < server.PEER_VERSION_PING:
@@ -597,7 +597,7 @@ class NotifyClientBase(coro.Thread):
         if self.conn.send_size():
             return False
 
-        self.push(BinNew.Push('ping', {}))
+        self.push(message.Push('ping', {}))
         return True
 
 
@@ -746,7 +746,7 @@ class NotifyPublisher(NotifyClientBase):
             'idle':    self._idletime * 2,
             'version': server.PEER_VERSION}
             
-        push = BinNew.Push(self._icmd, data)
+        push = message.Push(self._icmd, data)
 
         try:
             conn.write_command(push)
@@ -835,7 +835,7 @@ class NotifyPublisher(NotifyClientBase):
         params = dict(zip(SEARCH_TREE_PATH, (object, id, cmd)))
         params.update({'args': args})
 
-        self.push(BinNew.Push('update', params))
+        self.push(message.Push('update', params))
 
     def rpc(self, object, id, cmd, args, timeout = None, **kwargs):
         '''rpc
@@ -873,7 +873,7 @@ class NotifyPublisher(NotifyClientBase):
 
         self._rpc_q[self._rpc_seq] = RPCHandle(source, params)
 
-        result = self.push(BinNew.Push('rpc_call', params))
+        result = self.push(message.Push('rpc_call', params))
         if not result:
             del(self._rpc_q[self._rpc_seq])
 
@@ -1026,7 +1026,7 @@ class NotifyClient(NotifyClientBase):
             'idle':    self._idletime * 2,
             'version': server.PEER_VERSION}
 
-        push = BinNew.Push('establish', data)
+        push = message.Push('establish', data)
         try:
             self.conn.write_command(push)
         except:
@@ -1160,7 +1160,7 @@ class NotifyClient(NotifyClientBase):
     def notify(self, object, id, cmd, args):
         params = dict(zip(SEARCH_TREE_PATH, (object, id, cmd)))
         params.update({'args': args})
-        self.push(BinNew.Push('update', params))
+        self.push(message.Push('update', params))
 
     def rpc_call(self, object, id, cmd, args, seq, srv):
         if self._peer_ver < server.PEER_VERSION_RPC:
@@ -1169,7 +1169,7 @@ class NotifyClient(NotifyClientBase):
         params = dict(zip(SEARCH_TREE_PATH, (object, id, cmd)))
         params.update({'args': args, 'seq': seq})
 
-        return self.push(BinNew.Push('rpc_call', params), head = True)
+        return self.push(message.Push('rpc_call', params), head = True)
 
     def rpc_response(self, object, id, cmd, results, seq = None):
         params = dict(zip(SEARCH_TREE_PATH, (object, id, cmd)))
@@ -1177,7 +1177,7 @@ class NotifyClient(NotifyClientBase):
         if seq is not None:
             params.update({'seq': seq})
         
-        self.push(BinNew.Push('rpc_response', params), head = True)
+        self.push(message.Push('rpc_response', params), head = True)
         return None
 
     def publish_subscriptions(self):
@@ -1189,7 +1189,7 @@ class NotifyClient(NotifyClientBase):
 
         if self._peer_ver < server.PEER_VERSION_LST:
             for value in self._server.client_subscribes():
-                self.push(BinNew.Push('subscribe', value))
+                self.push(message.Push('subscribe', value))
 
             return None
 
@@ -1197,7 +1197,7 @@ class NotifyClient(NotifyClientBase):
         if not subscriptions:
             return None
 
-        self.push(BinNew.Push('subscribe', subscriptions))
+        self.push(message.Push('subscribe', subscriptions))
 
 
 class PassiveNotifyClient(NotifyClient):
@@ -1527,7 +1527,7 @@ class NotifyServer(coro.Thread):
     def command_push_all(self, command, result):
         if result:
             self.push_all(
-                BinNew.Push(command, result),
+                message.Push(command, result),
                 server.PEER_VERSION_SUB)
     #
     # external API

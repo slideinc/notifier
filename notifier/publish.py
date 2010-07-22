@@ -14,7 +14,7 @@ import sys
 import exceptions
 import select
 
-from util import BinNew
+import message
 from util import applog
 from btserv import command
 from btserv import server
@@ -123,7 +123,7 @@ class SimpleNotifyPublisher(object):
             conn = command.ReadWriter(s)
             conn.settimeout(self._itime)
         
-            push = BinNew.Push('publisher', {'id': self._id})
+            push = message.Push('publisher', {'id': self._id})
             try:
                 conn.write_command(push)
             except socket.error, e:
@@ -203,7 +203,7 @@ class SimpleNotifyPublisher(object):
     
     def _rpc_send(self, conn, seq, obj, id, cmd, args):
         data = {'object': obj, 'id': id, 'cmd': cmd, 'args': args, 'seq': seq}
-        msg  = BinNew.Push('rpc_call', data)
+        msg  = message.Push('rpc_call', data)
 
         try:
             conn.write_command(msg)
@@ -391,7 +391,7 @@ class SimpleNotifyPublisher(object):
     def publish(self, object, id, cmd, args):
         
         params = dict(object = object, id = id, cmd = cmd, args = args)
-        msg = BinNew.Push('update', params)
+        msg = message.Push('update', params)
 
         conn = self._get_conn()
         if conn is None:
