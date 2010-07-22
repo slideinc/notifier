@@ -34,12 +34,17 @@ import command
 import server
 import ntree
 
-from configs.config import config
-
 SEND_THRESHOLD = 128*1024
 _BUF_SIZE_K = (sys.platform == 'darwin' and 4 or 256)
 SEND_BUF_SIZE  = _BUF_SIZE_K*1024
 RECV_BUF_SIZE  = _BUF_SIZE_K*1024
+
+PUBSUB_IDLE_TIMEOUT = 15
+PUBSUB_MAX_RETRY_BACKOFF = 1.3
+PUBSUB_MAX_RETRY_WAIT = 32
+PUBSUB_HANDSHAKE_TIMEOUT = 15
+PUBSUB_WARN_LIMIT = 1024*1024 # message size "warn limit"
+PUBSUB_MAX_RETRY_SKEW = 0.1
 
 SHUTDOWN_TIMEOUT = 30
 
@@ -443,7 +448,7 @@ class NotifyClientBase(coro.Thread):
         self._peer_idle = 0
         self._peer_addr = None
 
-        self._idletime = config.PUBSUB_IDLE_TIMEOUT
+        self._idletime = PUBSUB_IDLE_TIMEOUT
         self._lastsend = 0
         self._lastrecv = 0
 
@@ -716,8 +721,8 @@ class NotifyPublisher(NotifyClientBase):
             self._cond.wait(self._tout)
 
             self._tout  = max(self._tout, 1)
-            self._tout *= config.PUBSUB_MAX_RETRY_BACKOFF
-            self._tout  = min(config.PUBSUB_MAX_RETRY_WAIT, self._tout)
+            self._tout *= PUBSUB_MAX_RETRY_BACKOFF
+            self._tout  = min(PUBSUB_MAX_RETRY_WAIT, self._tout)
             #
             # Try all of our known partners.
             #
@@ -738,7 +743,7 @@ class NotifyPublisher(NotifyClientBase):
 
     def handshake(self, s):
         conn = command.ReadWriter(s)
-        conn.settimeout(config.PUBSUB_HANDSHAKE_TIMEOUT)
+        conn.settimeout(PUBSUB_HANDSHAKE_TIMEOUT)
 
         data = {
             'id':      self._self_id,
@@ -990,22 +995,22 @@ class NotifyClient(NotifyClientBase):
         self._server.peer_ping()
 
     def handshake(self, s):
-        if config.PUBSUB_WARN_LIMIT:
+        if PUBSUB_WARN_LIMIT:
             self.conn = command.ReadWriter(
                 s,
                 ser = {
                     'func':   serialize_callback,
-                    'offset': config.PUBSUB_WARN_LIMIT
+                    'offset': PUBSUB_WARN_LIMIT
                     },
                 des = {
                     'func':   deserialize_callback,
-                    'offset': config.PUBSUB_WARN_LIMIT
+                    'offset': PUBSUB_WARN_LIMIT
                     }
                 )
         else:
             self.conn = command.ReadWriter(s)
 
-        self.conn.settimeout(config.PUBSUB_HANDSHAKE_TIMEOUT)
+        self.conn.settimeout(PUBSUB_HANDSHAKE_TIMEOUT)
         self.conn.setsockopt(
             socket.SOL_SOCKET, socket.SO_SNDBUF, SEND_BUF_SIZE)
         self.conn.setsockopt(
@@ -1269,11 +1274,11 @@ class ActiveNotifyClient(NotifyClient):
 
             self._rcnt += 1
             self._tout  = max(self._tout, 1)
-            self._tout *= config.PUBSUB_MAX_RETRY_BACKOFF
-            self._tout  = min(config.PUBSUB_MAX_RETRY_WAIT, self._tout)
+            self._tout *= PUBSUB_MAX_RETRY_BACKOFF
+            self._tout  = min(PUBSUB_MAX_RETRY_WAIT, self._tout)
             self._tout  = random.uniform(
-                self._tout - (self._tout * config.PUBSUB_MAX_RETRY_SKEW),
-                self._tout + (self._tout * config.PUBSUB_MAX_RETRY_SKEW))
+                self._tout - (self._tout * PUBSUB_MAX_RETRY_SKEW),
+                self._tout + (self._tout * PUBSUB_MAX_RETRY_SKEW))
             
             self.state(CLIENT_STATE_CONNECTING)
 

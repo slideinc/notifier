@@ -19,8 +19,6 @@ import command
 import server
 from gogreen import coro
 
-from configs.config import config
-
 SEND_BUF_SIZE  = 256*1024
 RECV_BUF_SIZE  = 256*1024
 
@@ -471,7 +469,7 @@ _pub_conn = None
 
 def get_publisher():
     global _pub_conn
-    if _pub_conn is None and config.publish_web_btserv:
+    if _pub_conn is None:
         assert not coro.current_thread(), 'get_publisher is not intended for coro; use context.notifier() instead'
         addr_list = server.get_publish_address()
         _pub_conn = SimpleNotifyPublisher(addr_list)
