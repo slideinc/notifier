@@ -14,7 +14,7 @@ import logging
 import gc
 import time
 
-from btserv import opc # note: executes on import. do not remove.
+#from btserv import opc # note: executes on import. do not remove.
 
 from configs.config import config
 
