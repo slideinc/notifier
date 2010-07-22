@@ -15,7 +15,6 @@ import exceptions
 import select
 
 import message
-from util import applog
 import command
 import server
 from gogreen import coro
@@ -78,7 +77,7 @@ class SimpleNotifyPublisher(object):
         else:
             msg = 'Server: None <%s>' % (msg,)
 
-        applog.log.warn(msg)
+        coro.log.warn(msg)
 
         self._clear_conn()
 
@@ -184,15 +183,15 @@ class SimpleNotifyPublisher(object):
                     cmd = self._conn.read_command()
                 except command.ConnectionError:
                     # expected connection error
-                    applog.log.info(
+                    coro.log.info(
                         'lost connection %r. reconnecting' % (self._addr[0],))
                 except exceptions.Exception, e:
                     # unexpected error
-                    applog.log.warn(
+                    coro.log.warn(
                         'unexpected error during connection check: %r' % (e,))
                 else:
                     # unexpected command
-                    applog.log.warn(
+                    coro.log.warn(
                         'unexpected command during connection check: %r' % cmd)
             finally:
                 self._clear_conn()
@@ -403,8 +402,7 @@ class SimpleNotifyPublisher(object):
             if coro.current_thread(): # avoid log_compact_traceback in coro
                 coro.log.traceback()
                 return None
-            self.error(applog.log_compact_traceback(
-                str, 'Error queueing command: %r' % msg))
+            self.error('Error queueing command: %r' % msg)
             return None
 
         try:
@@ -433,7 +431,7 @@ class SimpleNotifyPublisher(object):
                 return []
 
             if len(result) != cnt:
-                applog.log.warn(
+                coro.log.warn(
                     'RPC size mismatch. <%d:%d>' % (cnt, len(result)))
                 return []
 
