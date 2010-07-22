@@ -1836,8 +1836,9 @@ class NotifyServer(coro.Thread):
 # standalone test interface, not for normal operation.
 #
 def run(smap, mainport, backport, loglevel, log):
+    if backport:
+        backdoor.BackDoorServer(args=(backport,)).start()
     
-    coro.spawn(backdoor.serve, backport)
     #
     # server
     server = NotifyServer(log = log, args=(smap,), kwargs={'port': mainport})
@@ -1862,7 +1863,7 @@ def usage(name, error = None):
 def main(argv, environ):
     progname = sys.argv[0]
 
-    backport = 9876
+    backport = None
     mainport = 7221
     logfile  = None
     pidfile  = None
