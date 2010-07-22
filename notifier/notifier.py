@@ -619,7 +619,7 @@ class NotifyPublisher(NotifyClientBase):
         else:
             self._icmd    = 'publisher'
             self._self_id = '%s:%x:%x' % (
-                server.gethostname(), os.getpid(), self._thread_id)
+                socket.gethostname(), os.getpid(), self._thread_id)
 
         self._host    = ''
         self._port    = 0
@@ -895,11 +895,6 @@ class NotifyPublisher(NotifyClientBase):
             if destination == rpc or destination is None:
                 rpc.kill()
                 del(self._rpc_q[seq])
-#
-# convenience for connection to random btserv.
-#
-def get_publisher_thread():
-    return NotifyPublisher(args = (server.get_publish_address(),))
 
 class NotifyClient(NotifyClientBase):
     '''NotifyClient
@@ -1390,7 +1385,7 @@ class NotifyServer(coro.Thread):
         #
         # first determine self and an entry in the smap
         #
-        hostlist = ('localhost', hostname or server.gethostname())
+        hostlist = ('localhost', hostname or socket.gethostname())
         addrlist = map(lambda i: (i, port), hostlist)
         intrlist = set(smap) & set(addrlist)
 

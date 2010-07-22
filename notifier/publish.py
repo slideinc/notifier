@@ -31,7 +31,7 @@ class SimpleNotifyPublisher(object):
     def __init__(self, addr_list, **kwargs):
         self._peer_id = 0
         self._addr = addr_list
-        self._id   = '%s:%x' % (server.gethostname(), os.getpid())
+        self._id   = '%s:%x' % (socket.gethostname(), os.getpid())
         self._conn = None
         self._err  = 0
         self._msg  = 'no error message'
@@ -462,18 +462,5 @@ class SimpleNotifyTarget(object):
     def rpc_response(self, object, id, cmd, response):
         sys.stdout.write(
             'rpc response: <%s:%d:%s:%r>\n' % (object, id, cmd, response))
-#
-# convenience for connection to random btserv.
-#
-_pub_conn = None
-
-def get_publisher():
-    global _pub_conn
-    if _pub_conn is None:
-        assert not coro.current_thread(), 'get_publisher is not intended for coro; use context.notifier() instead'
-        addr_list = server.get_publish_address()
-        _pub_conn = SimpleNotifyPublisher(addr_list)
-
-    return _pub_conn
 #
 # end...

@@ -16,8 +16,6 @@ import time
 
 #from btserv import opc # note: executes on import. do not remove.
 
-from configs.config import config
-
 SRV_LOG_FRMT = '[%(name)s|%(coro)s|%(asctime)s|%(levelname)s] %(message)s'
 
 LOGLEVELS = dict(
@@ -59,82 +57,6 @@ class GreenFormatter(object):
         else:
             return msg
 
-def gethostname():
-    '''gethostname
-
-    Return the localhost name, adding the domain if specified.
-    '''
-
-    name = (socket.gethostname(), config.internal_domain)
-    return '.'.join(filter(bool, name))
-
-
-def get_publish_address():
-    '''get_publish_address
-
-    Returns a list of all available publish notifier (host, pushport)
-    tuples.  Locally listening notifiers run by the current user are
-    shuffled to the front followed by locally listening notifiers.
-    Otherwise the ordering of the list is randomized. Finally, entries
-    marked as restricted are removed. (usually for load/performance
-    reasons)
-    '''
-    
-    notifiers = config.btservs.values()
-    addrs = []
-
-    user = getattr(config, 'pg_user', getpass.getuser())
-    host = gethostname()
-
-    if not notifiers:
-        return [(None, None)]
-
-    random.shuffle(notifiers)
-    #
-    # first look for same or no user plus localhost
-    for i in xrange(len(notifiers)-1, -1, -1):
-        if notifiers[i]['host'] not in [host, 'localhost']:
-            continue
-        
-        if user != notifiers[i].get('user', user):
-            continue
-
-        addrs.append(notifiers.pop(i))
-    #
-    # next look for same user or no user
-    for i in range(len(notifiers)-1, -1, -1):
-        if user == notifiers[i].get('user', user):
-            addrs.append(notifiers.pop(i))
-    #
-    # remove restricted entries
-    addrs = filter(lambda x: not x.get('restricted', False), addrs)
-    #
-    # reduce entries to address tuples
-    return map(lambda x: (x['host'], x['pushport']), addrs)
-
-def get_imgnotify_address():
-    """get_imgnotify_address returns a list of all available imagesrv
-    notifier (host, pushport) tuples.  Locally listening notifiers are
-    shuffled to the front, but, otherwise, the ordering of the list is
-    random.
-    """
-    notifier_list = config.imagesrvs
-    addr = []
-
-    host = gethostname()
-
-    if not notifier_list:
-        return [(None, None)]
-    random.shuffle(notifier_list)
-    # look for localhosts
-    for i in range(len(notifier_list)-1, -1, -1):
-        item = notifier_list[i]
-        if item[0] in [host, 'localhost']:
-            addr.append(item)
-            del(notifier_list[i])
-
-    return addr + notifier_list
-
 def get_local_servers(config_map, user = None):
     """get_local_servers returns a dictionary keyed by server ids of
     all configuration blocks from config_map for servers that run as
@@ -144,7 +66,7 @@ def get_local_servers(config_map, user = None):
     """
     local_srvs = {}
     user = user or getpass.getuser()
-    name = gethostname()
+    name = socket.gethostname()
     for id, server in config_map.items():
         if server.get('host', 'localhost') in [name, 'localhost'] and \
             user == server.get('user', user):
