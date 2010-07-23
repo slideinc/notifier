@@ -48,8 +48,6 @@ import string
 import copy
 import exceptions
 
-coro.socket_emulate()
-
 import message
 import command
 import server
