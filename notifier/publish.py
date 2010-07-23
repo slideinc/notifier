@@ -44,7 +44,6 @@ import select
 
 import message
 import command
-import server
 from gogreen import coro
 
 SEND_BUF_SIZE  = 256*1024
