@@ -250,6 +250,10 @@ class Server(object):
         self._bounds   = {}
         self._active   = False
 
+        if 'loglevel' in kwargs:
+            self._server.set_log_level(kwargs['loglevel'])
+            self._notifier.set_log_level(kwargs['loglevel'])
+
         self.load_config(kwargs['bounds'])
 
     def __del__(self):
