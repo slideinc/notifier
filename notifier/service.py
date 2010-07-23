@@ -29,7 +29,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""base
+"""service
 
 A rpc service provider, to be executed within the coroutine framework
 """
@@ -42,11 +42,9 @@ import time
 import sys
 import os
 
-from util    import decorators
-from util    import tracebacklog
-from access  import error
-from access  import base
-from service import logicgc
+import decorators
+import error
+import access
 
 
 
@@ -58,7 +56,6 @@ class SimpleWorker(corowork.Worker):
         super(SimpleWorker, self).__init__(*args, **kwargs)
 
         self._notifier = kwargs['notifier']
-        self._logic    = logicgc.Logic(notifier = self)
         self._waiter   = coro.coroutine_cond()
         self._objname  = kwargs['object']
         self._msgqueue = []
@@ -82,7 +79,6 @@ class SimpleWorker(corowork.Worker):
             try:
                 result = self._execute(vid, cmd, args, kwargs)
             finally:
-                self._logic.hoover_unwind_all()                
                 coro.pop_local(slv)
                 coro.pop_local(tlb)
                 coro.pop_local(base.CORO_LOCAL_SOURCE)
@@ -99,10 +95,6 @@ class SimpleWorker(corowork.Worker):
         except exceptions.Exception, e:
             self.traceback()
             t,v,tb = coro.traceback_info()
-            tracebacklog.tracebacklog( 
-                self._notifier,
-                name = '%s.%s'%(self.__module__, call.get('command', 'none')))
-
             result = {
                 'rc':  error.ServiceTraceback.id,
                 'tb':  tb,
@@ -112,10 +104,6 @@ class SimpleWorker(corowork.Worker):
         except:
             self.traceback()
             t,v,tb = coro.traceback_info()
-            tracebacklog.tracebacklog( 
-                self._notifier,
-                name = '%s.%s'%(self.__module__, call.get('command', 'none')))
-
             result = {
                 'rc':  error.ServiceTraceback.id,
                 'tb':  tb,
@@ -155,7 +143,6 @@ class SimpleWorker(corowork.Worker):
         super(SimpleWorker, self).complete()
 
         self._notifier = None
-        self._logic    = None
     #
     # We act as an RPC proxy to ensure that messages are queued and only
     # flushed once the transaction has completed.
@@ -254,36 +241,6 @@ class Worker(SimpleWorker):
         super(Worker, self).complete()
         self._dbpool = None
         self._slpool = None
-
-    @decorators.command
-    @decorators.cursor()
-    @decorators.envelope
-    @decorators.nopartition
-    def _transaction(self, rand, cursor, transaction):
-        '''_transaction
-
-        Take a list of service commands and execute within a single
-        DB cursor transaction.
-        '''
-        if len(transaction) > self.MAX_TRANSACTION:
-            raise error.MaxTransactionLengthExceeded(
-                'Max transaction length exceeded',
-                self.MAX_TRANSACTION,
-                len(transaction))
-
-        for vid, cmd, args, kwargs in transaction:
-            if cmd not in self.ALLOWED_TRANSACTION_METHODS:
-                raise error.MethodNotAllowedForTransaction(
-                    'Method not allowed for transaction calls', cmd)
-
-        ret = []
-
-        for vid, cmd, args, kwargs in transaction:
-            method = getattr(self, cmd)
-            result = method(vid, cursor, *args, **kwargs)
-            ret.append(result)
-
-        return ret
 
 
 class Server(object):
