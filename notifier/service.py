@@ -178,25 +178,8 @@ class SimpleWorker(corowork.Worker):
 
 
 class Worker(SimpleWorker):
-    MAX_TRANSACTION = 0
-    ALLOWED_TRANSACTION_METHODS = set()
-    
     def __init__(self, *args, **kwargs):
         super(Worker, self).__init__(*args, **kwargs)
-        self._dbpool = kwargs['dbpool']
-        self._slpool = kwargs.get('slpool', None)
-
-    def _get_dbc(self, vid, **kwargs):
-        if kwargs.get('slave', False) and self._slpool is not None:
-            return self._slpool.get(id = vid)
-        else:
-            return self._dbpool.get(id = vid)
-
-    def _put_dbc(self, dbc, **kwargs):
-        if kwargs.get('slave', False) and self._slpool is not None:
-            return self._slpool.put(dbc)
-        else:
-            return self._dbpool.put(dbc)
 
     def _execute(self, vid, cmd, args, kwargs):
         handler = getattr(self, cmd, None)
@@ -239,8 +222,6 @@ class Worker(SimpleWorker):
 
     def complete(self):
         super(Worker, self).complete()
-        self._dbpool = None
-        self._slpool = None
 
 
 class Server(object):
