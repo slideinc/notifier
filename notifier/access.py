@@ -74,6 +74,8 @@ CORO_LOCAL_SOURCE = 'access-call-source'
 
 DEFAULT_RETRY = 2
 
+ACCESS_TRACE_LIMITS = {'obj' : None, 'cmd' : None, 'vids' : None }
+
 ACCESS_TRACE_OFF = 0
 ACCESS_TRACE_TERSE = 10
 ACCESS_TRACE_INFO = 20
