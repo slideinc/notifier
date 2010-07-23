@@ -40,16 +40,9 @@ from gogreen import backdoor
 import socket
 import time
 import logging
-import struct
-import traceback
 import sys
 import os
 import getopt
-import time
-import resource
-import select
-import heapq
-import inspect
 import random
 import string
 import copy
