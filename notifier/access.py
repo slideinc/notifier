@@ -29,7 +29,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""base
+"""access
 
 Basic access to object services.
 """
@@ -43,10 +43,8 @@ import socket
 
 
 from gogreen import coro
-from util    import pyinfo
-from access  import error
-
-from configs.config import config
+import pyinfo
+import error
 
 class ServerUnavailable(Exception):
     pass
@@ -74,14 +72,18 @@ CORO_LOCAL_TDATA  = 'access-trace-data'
 CORO_LOCAL_TCTRL  = 'access-trace-ctrl'
 CORO_LOCAL_SOURCE = 'access-call-source'
 
+DEFAULT_RETRY = 2
+
+ACCESS_TRACE_OFF = 0
+ACCESS_TRACE_TERSE = 10
+ACCESS_TRACE_INFO = 20
+ACCESS_TRACE_DEBUG = 30
+ACCESS_TRACE_VERBOSE = 40
+
 def _tlb_status(object):
     return coro.get_local('tlb-%s' % object, False)
 
-def _set_trace_local(value, local, clear):
-    if not local:
-        config.enable_access_trace = value
-        return None
-
+def _set_trace_local(value, clear):
     if not coro.has_local(CORO_LOCAL_TCTRL):
         coro.set_local(CORO_LOCAL_TCTRL, {})
         
@@ -91,7 +93,7 @@ def _set_trace_local(value, local, clear):
 
 def _get_trace_local():
     data = coro.get_local(CORO_LOCAL_TCTRL, {})
-    return data.get('value', config.enable_access_trace)
+    return data.get('value', False)
 
 def _clr_trace_local():
     if  coro.get_local(CORO_LOCAL_TCTRL, {}).get('clear', False):
@@ -99,7 +101,7 @@ def _clr_trace_local():
     else:
         data = coro.get_local(CORO_LOCAL_TCTRL, {})
 
-    return data.get('value', config.enable_access_trace)
+    return data.get('value', False)
 #
 # set local request parameter to use service DB slaves if possible.
 #
@@ -137,7 +139,7 @@ def trace_dump(clear = True):
             count += cnt
             idcnt += ids
 
-            if tlevl > config.ACCESS_TRACE_TERSE:
+            if tlevl > ACCESS_TRACE_TERSE:
                 print 'Access | %0.4f | %4d | %4d | Summary (%s.%s)' % (
                     elapse, cnt, ids, obj, cmd)
 
@@ -152,7 +154,7 @@ def trace_dump(clear = True):
     print 'Access | %.4f | %4d | %4d | Summary (TOTAL) %s' % (
         total, count, idcnt, lmt)
 
-def enable_trace(value, local = False, clear = True):
+def enable_trace(value, clear = True):
     '''enable_trace
 
     Set trace level.
@@ -170,7 +172,7 @@ def enable_trace(value, local = False, clear = True):
     Note: Each level will produce all the data that the previous level
           produces, plus the additional documented data.
 
-    Config level constants:
+    constants:
 
       ACCESS_TRACE_OFF     = 0
       ACCESS_TRACE_TERSE   = 10
@@ -180,15 +182,13 @@ def enable_trace(value, local = False, clear = True):
 
     Optional parameters:
 
-      local - Set, and override the global, trace value for only the current
-              running coroutine. (default: False)
       clear - Reset/Clear the local override when trace_dump is called with
               the clear parameter set to true. (default: True)
 
     See Also: trace_dump()
     '''
 
-    _set_trace_local(value, local, clear)
+    _set_trace_local(value, clear)
     return _get_trace_local(), value
 #
 # Private/Local trace data/info support function(s)
@@ -214,7 +214,7 @@ def _trace_data(start, obj, cmd, vids, **kwargs):
 
     data[cmd] = sum_tuple(data.get(cmd, (0, 0, 0)), (elapse, look, 1))
 
-    if _get_trace_local() > config.ACCESS_TRACE_DEBUG:
+    if _get_trace_local() > ACCESS_TRACE_DEBUG:
         stack = pyinfo.rawstack()
         stack = stack[:-5] # remove 5 levels of mod_python, publisher
         while stack and stack[0][0].startswith('access'):
@@ -223,7 +223,7 @@ def _trace_data(start, obj, cmd, vids, **kwargs):
     else:
         stack = ''
 
-    if _get_trace_local() < config.ACCESS_TRACE_DEBUG:
+    if _get_trace_local() < ACCESS_TRACE_DEBUG:
         return None
 
     print 'Access | %.4f | obj: %s cmd: %s vid: %s args: %s kwargs: %s%s' % (
@@ -273,7 +273,7 @@ def _complete_trace_decorator():
         return tracer
     return function
         
-_trace_limits = config.ACCESS_TRACE_LIMITS
+_trace_limits = ACCESS_TRACE_LIMITS
 def trace_limit(obj = None, cmd = None, vids = None):
     '''trace_limit
     
@@ -281,8 +281,7 @@ def trace_limit(obj = None, cmd = None, vids = None):
     values (the default) implies ignore that component; i.e., match a call
     with any value for that component.
     
-    obj: Only trace calls for this access object. Examples include 
-        config.ITEM_SERV_USER or config.ITEM_SERV_GRAPH
+    obj: Only trace calls for this access object.
     cmd: Only trace calls against this command. Note that the cmd value needs
         to make sense with the obj value. If the cmd limit isn't a command 
         associated with the obj then it effectively will not trace anything.
@@ -376,7 +375,7 @@ def _execute(
     # default retry when none specificed
     #
     if retry is None:
-        retry = config.ITEM_SERV_RETRY
+        retry = DEFAULT_RETRY
     #
     # lookaside determination/setup. Three possible values:
     #
@@ -540,7 +539,7 @@ class SplitAccess(object):
     '''
     def __init__(self, notifier, **kwargs):
         self._notifier = notifier
-        self._retry    = kwargs.get('retry', config.ITEM_SERV_RETRY)
+        self._retry    = kwargs.get('retry', DEFAULT_RETRY)
 
     def __repr__(self):
         return repr(self._notifier)
