@@ -75,13 +75,13 @@ class SimpleWorker(corowork.Worker):
         try:
             coro.set_local(tlb, tval)
             coro.set_local(slv, sval)
-            if source: coro.set_local(base.CORO_LOCAL_SOURCE, source)
+            if source: coro.set_local(access.CORO_LOCAL_SOURCE, source)
             try:
                 result = self._execute(vid, cmd, args, kwargs)
             finally:
                 coro.pop_local(slv)
                 coro.pop_local(tlb)
-                coro.pop_local(base.CORO_LOCAL_SOURCE)
+                coro.pop_local(access.CORO_LOCAL_SOURCE)
         except error.AccessError, e:
             self.warn('AccessError: %r %r' % (e, e.args,))
 
@@ -210,7 +210,7 @@ class Worker(SimpleWorker):
         if not getattr(handler, 'cursor', 0):
             return self._call(handler, vid, *args, **kwargs)
 
-        slave = getattr(handler, 'readonly', False) and base.slave_read()
+        slave = getattr(handler, 'readonly', False) and access.slave_read()
 
         extra_dbc_hints = getattr(handler, 'extra_dbc_hints', [])
         extra = {}
