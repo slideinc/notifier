@@ -23,7 +23,8 @@ setup(
         "Operating System :: Unix",
         "Programming Language :: Python",
         "Topic :: System :: Networking",
-    ]
+    ],
+    install_requires=['gogreen', 'wirebin'],
 )
 
 MANIFEST = (
