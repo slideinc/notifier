@@ -35,10 +35,7 @@ Simple notification publisher.
 """
 
 import socket
-import time
-import string
 import os
-import sys
 import exceptions
 import select
 
@@ -473,21 +470,3 @@ class SimpleNotifyPublisher(object):
             return None
         else:
             return result[0]
-
-
-class SimpleNotifyTarget(object):
-    def notify(self, object, id, cmd, args):
-        sys.stdout.write(
-            'notification: <%s:%d:%s:%r>\n' % (object, id, cmd, args))
-        return None
-
-    def rpc_call(self, object, id, cmd, args, seq, server):
-        sys.stdout.write(
-            'rpc call: <%s:%d:%s:%d:%r>\n' % (object, id, cmd, seq, args))
-        server.rpc_response(seq, args)
-
-    def rpc_response(self, object, id, cmd, response):
-        sys.stdout.write(
-            'rpc response: <%s:%d:%s:%r>\n' % (object, id, cmd, response))
-#
-# end...
