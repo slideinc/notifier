@@ -51,7 +51,7 @@ ERROR_DATA_MASK = select.POLLIN|select.POLLHUP|select.POLLERR|select.POLLNVAL
 HANDSHAKE_TIMEOUT = 10.0
 SOCKET_TIMEOUT = 5.0
 
-class SimpleNotifyPublisher(object):
+class Publisher(object):
     def __init__(self, addr_list, **kwargs):
         self._peer_id = 0
         self._addr = addr_list
