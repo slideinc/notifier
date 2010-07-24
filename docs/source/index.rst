@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   notifier/notifier
+   notifier/coroutines
    notifier/publish
    notifier/access
    notifier/service
