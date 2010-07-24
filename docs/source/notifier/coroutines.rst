@@ -5,25 +5,25 @@
 .. module:: notifier.notifier
 .. moduleauthor:: Libor Michalek <libor@pobox.com>
 
-.. class:: NotifyServer
+.. class:: Notifier
 
-    NotifyServer is the only "full" publisher, meaning it can both send remote
+    Notifier is the only "full" notifier, meaning it can both send remote
     procedure calls and one-way notifications and announce itself as a target
     of them.
 
     .. method:: run(smap, port=0, host='')
 
-        Being a gogreen.coro.Thread subclass, the *NotifyServer.run* arguments
+        Being a gogreen.coro.Thread subclass, the *Notifier.run* arguments
         must be filled ahead of time by *args* and *kwargs* keyword arguments
-        to *NotifyServer.__init__*.
+        to *Notifier.__init__*.
 
         :param smap:
             a list of *(host, port)* pairs with the locations of all the other
-            NotifyServers on the network.
+            Notifiers on the network.
         :type smap: list
-        :param port: the port the NotifyServer will bind to
+        :param port: the port the Notifier will bind to
         :type port: int
-        :param host: the host the NotifyServer will bind to
+        :param host: the host the Notifier will bind to
         :type host: str
 
     **One-Way Notification Registration Management**
