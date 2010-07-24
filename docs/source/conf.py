@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'notifier'
-copyright = u'2010, Libor Michalek'
+copyright = u'2010, Slide Inc'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -179,7 +179,7 @@ htmlhelp_basename = 'notifierdoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'notifier.tex', u'notifier Documentation',
-   u'Libor Michalek', 'manual'),
+   u'Slide Inc', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -212,5 +212,5 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'notifier', u'notifier Documentation',
-     [u'Libor Michalek'], 1)
+     [u'Slide Inc'], 1)
 ]

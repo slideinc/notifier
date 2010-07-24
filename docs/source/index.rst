@@ -11,6 +11,14 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   notifier/notifier
+   notifier/publish
+   notifier/access
+   notifier/service
+   notifier/decorators
+   notifier/error
+
+
 Indices and tables
 ==================
 
