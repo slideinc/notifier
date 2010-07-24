@@ -35,7 +35,7 @@ Basic access to object services.
 """
 
 import exceptions
-import random
+import random as _random
 import time
 import sys
 import os
@@ -236,7 +236,7 @@ def _trace_data(start, obj, cmd, vids, **kwargs):
 def _execute_trace_decorator():
     '''_execute_trace_decorator
 
-    trace decorator explicitly for the _execute function.
+    trace decorator explicitly for the execute function.
     '''
     def function(method):
         def tracer(obj, n, cmd, vids, *args, **kwargs):
@@ -365,7 +365,7 @@ def _unwrap(result):
 
 
 @_execute_trace_decorator()
-def _execute(
+def execute(
     object, notifier, command, vids,
     args = (), kwargs = {}, timeout = None, retry = None, raw = False):
     #
@@ -484,12 +484,12 @@ def _execute(
     return results
 
 
-def _random(object, notifier, command, **kwargs):
-    return _execute(
+def random(object, notifier, command, **kwargs):
+    return execute(
         object,
         notifier,
         command,
-        random.randint(0, (8 << 60) - 1),
+        _random.randint(0, (8 << 60) - 1),
         **kwargs)
 
 
