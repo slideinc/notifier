@@ -1372,12 +1372,12 @@ def _target_filter(targets):
 
     return map(lambda i: i[0], result)
 
-class NotifyServer(coro.Thread):
+class Notifier(coro.Thread):
     #
     # internal API
     #
     def __init__(self, *args, **kwargs):
-        super(NotifyServer, self).__init__(*args, **kwargs)
+        super(Notifier, self).__init__(*args, **kwargs)
         self._st = SubscriptionTracker(
             SEARCH_TREE_DEF, group = 'update', external = EXTERN_TREE_DEF)
         self._rp = SubscriptionTracker(
@@ -1860,7 +1860,7 @@ def run(smap, mainport, backport, loglevel, log):
     
     #
     # server
-    server = NotifyServer(log = log, args=(smap,), kwargs={'port': mainport})
+    server = Notifier(log = log, args=(smap,), kwargs={'port': mainport})
     server.set_log_level(loglevel)
     server.start()
     #
