@@ -5,7 +5,7 @@ import logging
 import signal
 
 from gogreen import backdoor, coro
-from notifier import decorators, notifier, service
+from notifier import coroutines, decorators, service
 
 
 ECHO = "echo"
@@ -24,7 +24,7 @@ class EchoServer(service.Server):
 
 
 def main():
-    ns = notifier.NotifyServer(args=(NOTIFIERS,), kwargs={'port': 7000})
+    ns = coroutines.Notifier(args=(NOTIFIERS,), kwargs={'port': 7000})
     ns.start()
 
     server = EchoServer(
