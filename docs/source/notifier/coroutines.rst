@@ -44,6 +44,27 @@
             the object from which we grab the *cmd* method to handle the
             request.
 
+    .. method:: slice(object, id, cmd, destination, weight=1.0)
+
+        Register for receiving one-way notifications for this set of
+        identifiers, adjusting the weight used for this notifier when the
+        notification is sent to a random recipient.
+
+        :param object:
+            The service name for which we are subscribing to messages
+        :type object: str
+        :param id: a *(mask, value)* pair to match ids
+        :type id: tuple
+        :param cmd: the method of the destination to call
+        :type cmd: str
+        :param destination:
+            the object from which we grab the *cmd* method to handle the
+            request.
+        :param weight:
+            the weight relative to the other nodes registered for
+            this event for random sends.
+        :type weight: float
+
     .. method:: unsubscribe(object, id, cmd, destination)
 
         Unregister from receiving notifications to object/id
@@ -56,5 +77,14 @@
         :param cmd: the method of the destination to call
         :type cmd: str
         :param destination:
-            the object from which we grab the *cmd* method to handle the
-            request.
+            the object from which we would have grabbed the *cmd* method to
+            handle the request.
+
+    .. method:: unregister_all(destination)
+
+        Unregister from receiving all notifications for which the notifier is
+        currently subscribed and delgating to *destination*.
+
+        :param destination:
+            the object from which we would have grabbed the *cmd* method to
+            handle the request.
