@@ -1,8 +1,8 @@
-===============================================
-:mod:`notifier.notifier` -- Coroutine Notifiers
-===============================================
+====================================================
+:mod:`notifier.coroutines` -- The Coroutine Notifier
+====================================================
 
-.. module:: notifier.notifier
+.. module:: notifier.coroutines
 .. moduleauthor:: Libor Michalek <libor@pobox.com>
 
 .. class:: Notifier
