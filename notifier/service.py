@@ -238,7 +238,7 @@ class Server(object):
             kwargs['size']   = size
         kwargs['object'] = self.subscription
         kwargs['worker'] = self.worker_class
-        kwargs['notifer'] = notifier
+        kwargs['notifier'] = notifier
         kwargs['filter'] = lambda *a: '%s.%s' % (
             self.__module__,
             statistics_filter(*a))
