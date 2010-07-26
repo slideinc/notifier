@@ -484,13 +484,13 @@ def execute(
     return results
 
 
-def random(object, notifier, command, **kwargs):
+def random(
+		object, notifier, command, args=(), kwargs={},
+		timeout=None, retry=None, raw=False):
     return execute(
-        object,
-        notifier,
-        command,
+        object, notifier, command,
         _random.randint(0, (8 << 60) - 1),
-        **kwargs)
+        args, kwargs, timeout, retry, raw)
 
 
 def _flatten(data):

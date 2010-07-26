@@ -229,7 +229,7 @@ class Server(object):
     subscription = 'base'
     statistics   = 'basestat'
 
-    def __init__(self, size, **kwargs):
+    def __init__(self, size, notifier, **kwargs):
         self._clean  = False
 
         if isinstance(size, list):
@@ -238,6 +238,7 @@ class Server(object):
             kwargs['size']   = size
         kwargs['object'] = self.subscription
         kwargs['worker'] = self.worker_class
+        kwargs['notifer'] = notifier
         kwargs['filter'] = lambda *a: '%s.%s' % (
             self.__module__,
             statistics_filter(*a))
