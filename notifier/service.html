@@ -1,0 +1,187 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>notifier.service – Simplified Service Creation &mdash; notifier v1.0 documentation</title>
+    <link rel="stylesheet" href="../static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="notifier v1.0 documentation" href="../index.html" />
+    <link rel="next" title="notifier.decorators – Service Decorators" href="decorators.html" />
+    <link rel="prev" title="notifier.access – Simplified RPC Sending" href="access.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper">
+      <div class="header">
+        <h1><a href="../index.html">notifier v1.0 documentation</a></h1>
+        <div class="rel">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="decorators.html" title="notifier.decorators – Service Decorators"
+             accesskey="N">next</a> |
+          <a href="access.html" title="notifier.access – Simplified RPC Sending"
+             accesskey="P">previous</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-notifier.service">
+<span id="notifier-service-simplified-service-creation"></span><h1><a class="reference internal" href="#module-notifier.service"><tt class="xref py py-mod docutils literal"><span class="pre">notifier.service</span></tt></a> &#8211; Simplified Service Creation<a class="headerlink" href="#module-notifier.service" title="Permalink to this headline">¶</a></h1>
+<p>The tools in this module allow a programmer to spin up a service that can
+respond to RPC calls very easily.</p>
+<p>First a <a class="reference internal" href="#notifier.service.Worker" title="notifier.service.Worker"><tt class="xref py py-class docutils literal"><span class="pre">Worker</span></tt></a> subclass needs to be defined, which has methods
+decorated with <a class="reference internal" href="decorators.html#notifier.decorators.command" title="notifier.decorators.command"><tt class="xref py py-func docutils literal"><span class="pre">command</span></tt></a>. This class (the
+class itself) is assigned to the <tt class="docutils literal"><span class="pre">worker_class</span></tt> attribute of a
+<a class="reference internal" href="#notifier.service.Server" title="notifier.service.Server"><tt class="xref py py-class docutils literal"><span class="pre">Server</span></tt></a> subclass, which also needs a <tt class="docutils literal"><span class="pre">subscription</span></tt> class attribute,
+a string of the service name it is offering. The <a class="reference internal" href="#notifier.service.Server" title="notifier.service.Server"><tt class="xref py py-class docutils literal"><span class="pre">Server</span></tt></a> subclass gets
+instantiated with a count of worker instances it should create and control, a
+<a class="reference internal" href="coroutines.html#notifier.coroutines.Notifier" title="notifier.coroutines.Notifier"><tt class="xref py py-class docutils literal"><span class="pre">Notifier</span></tt></a> it uses to register for and
+receive RPC calls, and a bounds dictionary, which contains <tt class="docutils literal"><span class="pre">mask</span></tt> and
+<tt class="docutils literal"><span class="pre">value</span></tt> keys with integer values (more on those in a minute).</p>
+<p>When an RPC request is made, it is always made with a <tt class="docutils literal"><span class="pre">object</span></tt>, an <tt class="docutils literal"><span class="pre">id</span></tt>,
+and a <tt class="docutils literal"><span class="pre">cmd</span></tt>. For the request to be routed to a particular <a class="reference internal" href="#notifier.service.Server" title="notifier.service.Server"><tt class="xref py py-class docutils literal"><span class="pre">Server</span></tt></a>,
+that server&#8217;s <tt class="docutils literal"><span class="pre">subscription</span></tt> must match the <tt class="docutils literal"><span class="pre">object</span></tt>, it must be true
+that <tt class="docutils literal"><span class="pre">(&lt;the</span> <span class="pre">server's</span> <span class="pre">&quot;mask&quot;&gt;</span> <span class="pre">&amp;</span> <span class="pre">id)</span> <span class="pre">==</span> <span class="pre">&lt;the</span> <span class="pre">server's</span> <span class="pre">&quot;value&quot;&gt;</span></tt>, and finally
+that the server&#8217;s <a class="reference internal" href="#notifier.service.Worker" title="notifier.service.Worker"><tt class="xref py py-class docutils literal"><span class="pre">Worker</span></tt></a> subclass have a
+<a class="reference internal" href="decorators.html#notifier.decorators.command" title="notifier.decorators.command"><tt class="xref py py-func docutils literal"><span class="pre">command</span></tt></a>-decorated method whose name is
+<tt class="docutils literal"><span class="pre">cmd</span></tt>. That is also the method that will be called, and whose return value
+will be sent as the RPC response.</p>
+<p>So the <tt class="docutils literal"><span class="pre">bounds</span></tt> given to <a class="reference internal" href="#notifier.service.Server" title="notifier.service.Server"><tt class="xref py py-class docutils literal"><span class="pre">Server</span></tt></a>.__init__ control which ids get
+through to a server by masking with <tt class="docutils literal"><span class="pre">bounds['mask']</span></tt> and comparing the result
+to <tt class="docutils literal"><span class="pre">bounds['value']</span></tt>. For a server that is the only provider of a service and
+command, use <tt class="docutils literal"><span class="pre">{'mask':</span> <span class="pre">0,</span> <span class="pre">'value':</span> <span class="pre">0}</span></tt>.</p>
+<p>RPC requests are routed through the notifier network according to the
+<tt class="docutils literal"><span class="pre">object</span></tt>, <tt class="docutils literal"><span class="pre">id</span></tt>,</p>
+<dl class="class">
+<dt id="notifier.service.Worker">
+<em class="property">class </em><tt class="descclassname">notifier.service.</tt><tt class="descname">Worker</tt><a class="headerlink" href="#notifier.service.Worker" title="Permalink to this definition">¶</a></dt>
+<dd><p>A coroutine thread that handles RPC requests.</p>
+<p>The primary use of this class is simply to subclass it adding handler
+methods, and assign that subclass to a <a class="reference internal" href="#notifier.service.Server" title="notifier.service.Server"><tt class="xref py py-class docutils literal"><span class="pre">Server</span></tt></a> subclass which will
+actually create the worker instances and call their methods.</p>
+<p>In a Worker subclass, any methods wrapped with
+<a class="reference internal" href="decorators.html#notifier.decorators.command" title="notifier.decorators.command"><tt class="xref py py-func docutils literal"><span class="pre">notifier.decorators.command()</span></tt></a> will be used to handle RPC requests.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="notifier.service.Server">
+<em class="property">class </em><tt class="descclassname">notifier.service.</tt><tt class="descname">Server</tt><big>(</big><em>worker_count</em>, <em>notifier</em>, <em>bounds=None</em>, <em>loglevel=DEBUG</em><big>)</big><a class="headerlink" href="#notifier.service.Server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Server, like <a class="reference internal" href="#notifier.service.Worker" title="notifier.service.Worker"><tt class="xref py py-class docutils literal"><span class="pre">Worker</span></tt></a>, is itself primarily useful as a base class.
+Subclasses of Server should get a few class-level attributes, and then
+be instantiated to start running in a gogreen coroutine environment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>worker_count</strong> (<em>int</em>) &#8211; The number of <a class="reference internal" href="#notifier.service.Server.worker_class" title="notifier.service.Server.worker_class"><tt class="xref py py-attr docutils literal"><span class="pre">worker_class</span></tt></a> instances to run, each pulling from
+the work queue.</li>
+<li><strong>notifier</strong> &#8211; A <a class="reference internal" href="coroutines.html#notifier.coroutines.Notifier" title="notifier.coroutines.Notifier"><tt class="xref py py-class docutils literal"><span class="pre">Notifier</span></tt></a> (a half-notifier
+<a class="reference internal" href="publish.html#notifier.publish.Publisher" title="notifier.publish.Publisher"><tt class="xref py py-class docutils literal"><span class="pre">Publisher</span></tt></a> is not enough)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="notifier.service.Server.worker_class">
+<tt class="descname">worker_class</tt><a class="headerlink" href="#notifier.service.Server.worker_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#notifier.service.Worker" title="notifier.service.Worker"><tt class="xref py py-class docutils literal"><span class="pre">Worker</span></tt></a> subclass that will be used by instances of this
+Server subclass.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="notifier.service.Server.subscription">
+<tt class="descname">subscription</tt><a class="headerlink" href="#notifier.service.Server.subscription" title="Permalink to this definition">¶</a></dt>
+<dd><p>The service name (string) that this Server subclass is providing.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="coroutines.html"><tt class="docutils literal"><span class="pre">notifier.coroutines</span></tt> &#8211; The Coroutine Notifier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publish.html"><tt class="docutils literal"><span class="pre">notifier.publish</span></tt> &#8211; The Non-Coroutine Half Notifier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="access.html"><tt class="docutils literal"><span class="pre">notifier.access</span></tt> &#8211; Simplified RPC Sending</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href=""><tt class="docutils literal"><span class="pre">notifier.service</span></tt> &#8211; Simplified Service Creation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decorators.html"><tt class="docutils literal"><span class="pre">notifier.decorators</span></tt> &#8211; Service Decorators</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Search</h3>
+          <form class="search" action="../search.html" method="get">
+            <input type="text" name="q" size="18" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+            Enter search terms or a module, class or function name.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="../genindex.html" title="General Index"
+             >index</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="decorators.html" title="notifier.decorators – Service Decorators"
+             >next</a> |
+          <a href="access.html" title="notifier.access – Simplified RPC Sending"
+             >previous</a>
+            <br/>
+            <a href="../sources/notifier/service.txt"
+               rel="nofollow">Show Source</a>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer">
+        &copy; Copyright 2010, Slide Inc.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

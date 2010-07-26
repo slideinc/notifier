@@ -1,0 +1,430 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>notifier.coroutines – The Coroutine Notifier &mdash; notifier v1.0 documentation</title>
+    <link rel="stylesheet" href="../static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="notifier v1.0 documentation" href="../index.html" />
+    <link rel="next" title="notifier.publish – The Non-Coroutine Half Notifier" href="publish.html" />
+    <link rel="prev" title="Welcome to notifier’s documentation!" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper">
+      <div class="header">
+        <h1><a href="../index.html">notifier v1.0 documentation</a></h1>
+        <div class="rel">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="publish.html" title="notifier.publish – The Non-Coroutine Half Notifier"
+             accesskey="N">next</a> |
+          <a href="../index.html" title="Welcome to notifier’s documentation!"
+             accesskey="P">previous</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-notifier.coroutines">
+<span id="notifier-coroutines-the-coroutine-notifier"></span><h1><a class="reference internal" href="#module-notifier.coroutines"><tt class="xref py py-mod docutils literal"><span class="pre">notifier.coroutines</span></tt></a> &#8211; The Coroutine Notifier<a class="headerlink" href="#module-notifier.coroutines" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="notifier.coroutines.Notifier">
+<em class="property">class </em><tt class="descclassname">notifier.coroutines.</tt><tt class="descname">Notifier</tt><big>(</big><em>notifier_map</em>, <em>args=()</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Notifier is the only &#8220;full&#8221; notifier, meaning it can both send remote
+procedure calls and one-way notifications and announce itself as a target
+of them.</p>
+<p>At creation time the Notifier needs to know about the <tt class="docutils literal"><span class="pre">(host,</span> <span class="pre">port)</span></tt> of
+all other notifiers with which it will communicate, so <tt class="docutils literal"><span class="pre">notifier_map</span></tt> is
+a list of those 2-tuples. <tt class="docutils literal"><span class="pre">args</span></tt> will be passed on to the <a class="reference internal" href="#notifier.coroutines.Notifier.run" title="notifier.coroutines.Notifier.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a>
+method when the Notifier&#8217;s coroutine thread is started.</p>
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.run">
+<tt class="descname">run</tt><big>(</big><em>smap</em>, <em>port=0</em>, <em>host=''</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Being a gogreen.coro.Thread subclass, the <tt class="docutils literal"><span class="pre">Notifier.run</span></tt> arguments
+must be filled ahead of time by <tt class="docutils literal"><span class="pre">args</span></tt> and <tt class="docutils literal"><span class="pre">kwargs</span></tt> keyword
+arguments to <tt class="docutils literal"><span class="pre">Notifier.__init__</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>smap</strong> (<em>list</em>) &#8211; a list of <tt class="docutils literal"><span class="pre">(host,</span> <span class="pre">port)</span></tt> pairs with the locations of all the
+other Notifiers on the network.</li>
+<li><strong>port</strong> (<em>int</em>) &#8211; the port the Notifier will bind to</li>
+<li><strong>host</strong> (<em>str</em>) &#8211; the host the Notifier will bind to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><strong>One-Way Notification Registration Management</strong></p>
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.subscribe">
+<tt class="descname">subscribe</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>destination</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.subscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register for receiving one-way notifications for this set of
+identifiers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name for which we are subscribing to messages</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination to call</li>
+<li><strong>destination</strong> &#8211; the object from which we grab the <tt class="docutils literal"><span class="pre">cmd</span></tt> method to handle the
+request.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.slice">
+<tt class="descname">slice</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>destination</em>, <em>weight=1.0</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register for receiving one-way notifications for this set of
+identifiers, adjusting the weight used for this notifier when the
+notification is sent to a random recipient.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name for which we are subscribing to messages</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination to call</li>
+<li><strong>destination</strong> &#8211; the object from which we grab the <tt class="docutils literal"><span class="pre">cmd</span></tt> method to handle the
+request.</li>
+<li><strong>weight</strong> (<em>float</em>) &#8211; the weight relative to the other nodes registered for
+this event for random sends.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.unsubscribe">
+<tt class="descname">unsubscribe</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>destination</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.unsubscribe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregister from receiving notifications to object/id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name from which we are unsubscribing</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; the <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> for which we will no longer receive</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination to call</li>
+<li><strong>destination</strong> &#8211; the object from which we would have grabbed the <tt class="docutils literal"><span class="pre">cmd</span></tt> method to
+handle the request.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.unregister_all">
+<tt class="descname">unregister_all</tt><big>(</big><em>destination</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.unregister_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregister from receiving all notifications for which the notifier is
+currently subscribed and delgating to <tt class="docutils literal"><span class="pre">destination</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>destination</strong> &#8211; the object from which we would have grabbed the <tt class="docutils literal"><span class="pre">cmd</span></tt> method to
+handle the request.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><strong>Notification Sending</strong></p>
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.publish">
+<tt class="descname">publish</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>args</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a one-way notification to whoever is registered for receiving them
+with <tt class="docutils literal"><span class="pre">(object,</span> <span class="pre">id,</span> <span class="pre">cmd)</span></tt>, and send <tt class="docutils literal"><span class="pre">args</span></tt> along with it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; the id to match to find a suitable recipient</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method name on the recipient to call</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; the wirebin-serializable arguments to send along with the
+notification</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><strong>RPC Registration Management</strong></p>
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.rpc_register">
+<tt class="descname">rpc_register</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>destination</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpc_register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register for receiving RPC requests for this set of identifiers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name for which we are subscribing</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination call</li>
+<li><strong>destination</strong> &#8211; the object from which the notifier will <tt class="docutils literal"><span class="pre">getattr()</span></tt> the <tt class="docutils literal"><span class="pre">cmd</span></tt>
+to get the function to use to handle the RPC request.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.rpc_slice">
+<tt class="descname">rpc_slice</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>destination</em>, <em>weight=1.0</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpc_slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register for receiving RPC requests for this set of identifiers, and
+adjust the weight for this notifier when a random destination is
+selected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name for which we are subscribing</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination call</li>
+<li><strong>destination</strong> &#8211; the object from which the notifier will <tt class="docutils literal"><span class="pre">getattr()</span></tt> the <tt class="docutils literal"><span class="pre">cmd</span></tt>
+to get the function to use to handle the RPC request.</li>
+<li><strong>weight</strong> (<em>float</em>) &#8211; the weight (normal is 1.0) for this notifier in calls to this
+<tt class="docutils literal"><span class="pre">(object,</span> <span class="pre">id,</span> <span class="pre">cmd)</span></tt> on the network</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.rpc_unregister">
+<tt class="descname">rpc_unregister</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>destination</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpc_unregister" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregister from receiving RPCs to this <tt class="docutils literal"><span class="pre">(object,</span> <span class="pre">id,</span> <span class="pre">cmd)</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service from which we are unregistering</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; the <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> for which we will no longer receive RPCs</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination that would have been called</li>
+<li><strong>destination</strong> &#8211; the object from which the notifier would have calld <tt class="docutils literal"><span class="pre">getattr()</span></tt>
+with the <tt class="docutils literal"><span class="pre">cmd</span></tt></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.rpc_unregister_all">
+<tt class="descname">rpc_unregister_all</tt><big>(</big><em>destination</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpc_unregister_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregister for all RPCs to which we had registered with <tt class="docutils literal"><span class="pre">destination</span></tt>
+as the handler.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>destination</strong> &#8211; An object that had been used as the <tt class="docutils literal"><span class="pre">destination</span></tt> in
+<a class="reference internal" href="#notifier.coroutines.Notifier.rpc_register" title="notifier.coroutines.Notifier.rpc_register"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_register()</span></tt></a> or <a class="reference internal" href="#notifier.coroutines.Notifier.rpc_slice" title="notifier.coroutines.Notifier.rpc_slice"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_slice()</span></tt></a> calls</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><strong>RPC Calling</strong></p>
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.rpc">
+<tt class="descname">rpc</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>args</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an RPC request to a registered receiver for <tt class="docutils literal"><span class="pre">(object,</span> <span class="pre">id,</span> <span class="pre">cmd)</span></tt>,
+passing arguments tuple <tt class="docutils literal"><span class="pre">args</span></tt>. Block waiting for the response,
+limiting the wait to <tt class="docutils literal"><span class="pre">timeout</span></tt> seconds, if <tt class="docutils literal"><span class="pre">timeout</span></tt> is provided.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; the identifier matched to find a specific handler</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC request</li>
+<li><strong>timeout</strong> (<em>int or float</em>) &#8211; the maximum time to wait for the response</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the result returned in the RPC response</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.rpcs">
+<tt class="descname">rpcs</tt><big>(</big><em>object</em>, <em>id_list</em>, <em>cmd</em>, <em>args</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends one RPC request per id in <tt class="docutils literal"><span class="pre">id_list</span></tt>, equivalent to
+<tt class="docutils literal"><span class="pre">len(id_list)</span></tt> <tt class="docutils literal"><span class="pre">rpc()</span></tt> calls except when it blocks it waits on them
+all in parallel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
+<li><strong>id_list</strong> (<em>list of ints</em>) &#8211; the identifiers matched to find a specific handlers</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC requests</li>
+<li><strong>timeout</strong> (<em>int or float</em>) &#8211; the maximum time to wait for the response</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the results returned in the RPC responses (in a list ordered
+the same as <tt class="docutils literal"><span class="pre">id_list</span></tt>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.coroutines.Notifier.rpc_call">
+<tt class="descname">rpc_call</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>args</em>, <em>source</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpc_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asynchronously send an RPC request, providing an object with a callback
+method for when the response comes in.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; the identifier matched to find a specific handler</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC request</li>
+<li><strong>source</strong> &#8211; <p>an object with a &#8220;rpc_response&#8221; method. that method must have the
+signature <tt class="docutils literal"><span class="pre">rpc_response(object,</span> <span class="pre">id,</span> <span class="pre">cmd,</span> <span class="pre">results,</span> <span class="pre">sequence=None)</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">object</span></tt>, <tt class="docutils literal"><span class="pre">id</span></tt>, and <tt class="docutils literal"><span class="pre">cmd</span></tt> will be the same as were provided
+to the rpc_call method, <tt class="docutils literal"><span class="pre">results</span></tt> will be the result from the RPC
+response, and sequence may be set to an int as an identifier of
+which request to which it is responding.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href=""><tt class="docutils literal"><span class="pre">notifier.coroutines</span></tt> &#8211; The Coroutine Notifier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publish.html"><tt class="docutils literal"><span class="pre">notifier.publish</span></tt> &#8211; The Non-Coroutine Half Notifier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="access.html"><tt class="docutils literal"><span class="pre">notifier.access</span></tt> &#8211; Simplified RPC Sending</a></li>
+<li class="toctree-l1"><a class="reference internal" href="service.html"><tt class="docutils literal"><span class="pre">notifier.service</span></tt> &#8211; Simplified Service Creation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decorators.html"><tt class="docutils literal"><span class="pre">notifier.decorators</span></tt> &#8211; Service Decorators</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Search</h3>
+          <form class="search" action="../search.html" method="get">
+            <input type="text" name="q" size="18" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+            Enter search terms or a module, class or function name.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="../genindex.html" title="General Index"
+             >index</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="publish.html" title="notifier.publish – The Non-Coroutine Half Notifier"
+             >next</a> |
+          <a href="../index.html" title="Welcome to notifier’s documentation!"
+             >previous</a>
+            <br/>
+            <a href="../sources/notifier/coroutines.txt"
+               rel="nofollow">Show Source</a>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer">
+        &copy; Copyright 2010, Slide Inc.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

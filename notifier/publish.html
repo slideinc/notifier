@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>notifier.publish – The Non-Coroutine Half Notifier &mdash; notifier v1.0 documentation</title>
+    <link rel="stylesheet" href="../static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="notifier v1.0 documentation" href="../index.html" />
+    <link rel="next" title="notifier.access – Simplified RPC Sending" href="access.html" />
+    <link rel="prev" title="notifier.coroutines – The Coroutine Notifier" href="coroutines.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper">
+      <div class="header">
+        <h1><a href="../index.html">notifier v1.0 documentation</a></h1>
+        <div class="rel">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="access.html" title="notifier.access – Simplified RPC Sending"
+             accesskey="N">next</a> |
+          <a href="coroutines.html" title="notifier.coroutines – The Coroutine Notifier"
+             accesskey="P">previous</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-notifier.publish">
+<span id="notifier-publish-the-non-coroutine-half-notifier"></span><h1><a class="reference internal" href="#module-notifier.publish"><tt class="xref py py-mod docutils literal"><span class="pre">notifier.publish</span></tt></a> &#8211; The Non-Coroutine Half Notifier<a class="headerlink" href="#module-notifier.publish" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="notifier.publish.Publisher">
+<em class="property">class </em><tt class="descclassname">notifier.publish.</tt><tt class="descname">Publisher</tt><big>(</big><em>notifier_map</em><big>)</big><a class="headerlink" href="#notifier.publish.Publisher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Publisher is a &#8220;half&#8221; notifier, meaning it can send RPCs and one-way
+notifications, but is unable to broadcast itself as a target of either. To
+provide a service in this manner, use
+<a class="reference internal" href="coroutines.html#notifier.coroutines.Notifier" title="notifier.coroutines.Notifier"><tt class="xref py py-class docutils literal"><span class="pre">notifier.coroutines.Notifier</span></tt></a>.</p>
+<p>The primary reason to use a Publisher over a Notifier is that it can work
+outside of a gogreen coroutine environment, making it more suitable for an
+interactive python session, for example.</p>
+<p><strong>Notification Sending</strong></p>
+<dl class="method">
+<dt id="notifier.publish.Publisher.publish">
+<tt class="descname">publish</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>args</em><big>)</big><a class="headerlink" href="#notifier.publish.Publisher.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a one-way notification to whoever is registered for receiving them
+with <tt class="docutils literal"><span class="pre">(object,</span> <span class="pre">id,</span> <span class="pre">cmd)</span></tt>, and send <tt class="docutils literal"><span class="pre">args</span></tt> along with it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; the id to match to find a suitable recipient</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method name on the recipient to call</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; the wirebin-serializable arguments to send along with the
+notification</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><strong>RPC Calling</strong></p>
+<dl class="method">
+<dt id="notifier.publish.Publisher.rpc">
+<tt class="descname">rpc</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>args</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#notifier.publish.Publisher.rpc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an RPC request to a registered receiver for <tt class="docutils literal"><span class="pre">(object,</span> <span class="pre">id,</span> <span class="pre">cmd)</span></tt>,
+passing arguments tuple <tt class="docutils literal"><span class="pre">args</span></tt>. Block waiting for the response,
+limiting the wait to <tt class="docutils literal"><span class="pre">timeout</span></tt> seconds, if <tt class="docutils literal"><span class="pre">timeout</span></tt> is provided.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; the identifier matched to find a specific handler</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC request</li>
+<li><strong>timeout</strong> (<em>int or float</em>) &#8211; the maximum time to wait for the response</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the result returned in the RPC response</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.publish.Publisher.rpcs">
+<tt class="descname">rpcs</tt><big>(</big><em>object</em>, <em>id_list</em>, <em>cmd</em>, <em>args</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#notifier.publish.Publisher.rpcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends one RPC request per id in <tt class="docutils literal"><span class="pre">id_list</span></tt>, equivalent to
+<tt class="docutils literal"><span class="pre">len(id_list)</span></tt> <tt class="docutils literal"><span class="pre">rpc()</span></tt> calls except when it blocks it waits on them
+all in parallel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
+<li><strong>id_list</strong> (<em>list of ints</em>) &#8211; the identifiers matched to find a specific handlers</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC requests</li>
+<li><strong>timeout</strong> (<em>int or float</em>) &#8211; the maximum time to wait for the response</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the results returned in the RPC responses (in a list ordered
+the same as <tt class="docutils literal"><span class="pre">id_list</span></tt>)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifier.publish.Publisher.rpc_call">
+<tt class="descname">rpc_call</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>args</em>, <em>source</em><big>)</big><a class="headerlink" href="#notifier.publish.Publisher.rpc_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asynchronously send an RPC request, providing an object with a callback
+method for when the response comes in.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; the identifier matched to find a specific handler</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC request</li>
+<li><strong>source</strong> &#8211; <p>an object with a &#8220;rpc_response&#8221; method. that method must have the
+signature <tt class="docutils literal"><span class="pre">rpc_response(object,</span> <span class="pre">id,</span> <span class="pre">cmd,</span> <span class="pre">results,</span> <span class="pre">sequence=None)</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">object</span></tt>, <tt class="docutils literal"><span class="pre">id</span></tt>, and <tt class="docutils literal"><span class="pre">cmd</span></tt> will be the same as were provided
+to the rpc_call method, <tt class="docutils literal"><span class="pre">results</span></tt> will be the result from the RPC
+response, and sequence may be set to an int as an identifier of
+which request to which it is responding.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="coroutines.html"><tt class="docutils literal"><span class="pre">notifier.coroutines</span></tt> &#8211; The Coroutine Notifier</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href=""><tt class="docutils literal"><span class="pre">notifier.publish</span></tt> &#8211; The Non-Coroutine Half Notifier</a></li>
+<li class="toctree-l1"><a class="reference internal" href="access.html"><tt class="docutils literal"><span class="pre">notifier.access</span></tt> &#8211; Simplified RPC Sending</a></li>
+<li class="toctree-l1"><a class="reference internal" href="service.html"><tt class="docutils literal"><span class="pre">notifier.service</span></tt> &#8211; Simplified Service Creation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decorators.html"><tt class="docutils literal"><span class="pre">notifier.decorators</span></tt> &#8211; Service Decorators</a></li>
+</ul>
+
+          <h3 style="margin-top: 1.5em;">Search</h3>
+          <form class="search" action="../search.html" method="get">
+            <input type="text" name="q" size="18" />
+            <input type="submit" value="Go" />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+          </form>
+          <p class="searchtip" style="font-size: 90%">
+            Enter search terms or a module, class or function name.
+          </p>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <a href="../genindex.html" title="General Index"
+             >index</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="access.html" title="notifier.access – Simplified RPC Sending"
+             >next</a> |
+          <a href="coroutines.html" title="notifier.coroutines – The Coroutine Notifier"
+             >previous</a>
+            <br/>
+            <a href="../sources/notifier/publish.txt"
+               rel="nofollow">Show Source</a>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer">
+        &copy; Copyright 2010, Slide Inc.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
