@@ -41,13 +41,15 @@
         :param object:
             the service name for which we are subscribing to messages
         :type object: str
-        :param id: a ``(mask, value)`` pair to match ids
+        :param id:
+            a ``(mask, value)`` pair to match ids (an id matches if
+            ``id & mask == value``)
         :type id: tuple
-        :param cmd: the method of the destination to call
+        :param cmd: the command name to respond to
         :type cmd: str
         :param destination:
-            the object from which we grab the ``cmd`` method to handle the
-            request.
+            an object with a method ``notify(object, id, cmd, args)`` to which
+            incoming notifications will be delegated.
 
     .. method:: slice(object, id, cmd, destination, weight=1.0)
 
@@ -58,16 +60,19 @@
         :param object:
             the service name for which we are subscribing to messages
         :type object: str
-        :param id: a ``(mask, value)`` pair to match ids
+        :param id:
+            a ``(mask, value)`` pair to match ids (an id matches if
+            ``id & mask == value``)
         :type id: tuple
-        :param cmd: the method of the destination to call
+        :param cmd: the command name to respond to
         :type cmd: str
         :param destination:
-            the object from which we grab the ``cmd`` method to handle the
-            request.
+            an object with a method ``notify(object, id, cmd, args)`` to which
+            incoming notifications will be delegated.
         :param weight:
-            the weight relative to the other nodes registered for
-            this event for random sends.
+            the weight relative to the other notifiers registered, to turn up
+            or down the traffic sent to a node when there are overlapping
+            subscriptions
         :type weight: float
 
     .. method:: unsubscribe(object, id, cmd, destination)
@@ -75,24 +80,24 @@
         Unregister from receiving notifications to object/id
 
         :param object:
-            the service name from which we are unsubscribing
+            the service name to unsubscribe from
         :type object: str
-        :param id: the ``(mask, value)`` for which we will no longer receive
+        :param id: the ``(mask, value)`` mask to unsubscribe from
         :type id: tuple
-        :param cmd: the method of the destination to call
+        :param cmd: the command name to unsubscribe from
         :type cmd: str
         :param destination:
-            the object from which we would have grabbed the ``cmd`` method to
-            handle the request.
+            an object that had been a ``destination`` in a previous
+            :meth:`subscribe` or :meth:`slice` call.
 
-    .. method:: unregister_all(destination)
+    .. method:: unsubscribe_all(destination)
 
-        Unregister from receiving all notifications for which the notifier is
+        Unsubscribe from receiving all notifications for which the notifier is
         currently subscribed and delgating to ``destination``.
 
         :param destination:
-            the object from which we would have grabbed the ``cmd`` method to
-            handle the request.
+            an object which had previously been the ``destination`` in one or
+            more :meth:`subscribe` or :meth:`slice` calls
 
     **Notification Sending**
 
@@ -103,14 +108,13 @@
 
         :param object: the service name
         :type object: str
-        :param id: the id to match to find a suitable recipient
+        :param id: the id to match to find a recipient
         :type id: int
-        :param cmd: the method name on the recipient to call
+        :param cmd: the command to match with and send
         :type cmd: str
         :param args:
             the wirebin-serializable arguments to send along with the
             notification
-        :type args: tuple
 
     **RPC Registration Management**
 
@@ -120,13 +124,17 @@
 
         :param object: the service name for which we are subscribing
         :type object: str
-        :param id: a ``(mask, value)`` pair to match ids
+        :param id:
+            a ``(mask, value)`` pair to match ids (an id matches if
+            ``id & mask == value``)
         :type id: tuple
-        :param cmd: the method of the destination call
+        :param cmd: the command name to respond to
         :type cmd: str
         :param destination:
-            the object from which the notifier will ``getattr()`` the ``cmd``
-            to get the function to use to handle the RPC request.
+            an object with a method
+            ``rpc_call(object, id, command, args, seq, notifier)`` to which
+            incoming rpc calls will be delegated (and the return value will be
+            sent back as the rpc response)
 
     .. method:: rpc_slice(object, id, cmd, destination, weight=1.0)
 
@@ -136,32 +144,37 @@
 
         :param object: the service name for which we are subscribing
         :type object: str
-        :param id: a ``(mask, value)`` pair to match ids
+        :param id:
+            a ``(mask, value)`` pair to match ids (an id matches if
+            ``id & mask == value``)
         :type id: tuple
-        :param cmd: the method of the destination call
+        :param cmd: the command name to respond to
         :type cmd: str
         :param destination:
-            the object from which the notifier will ``getattr()`` the ``cmd``
-            to get the function to use to handle the RPC request.
+            an object with a method
+            ``rpc_call(object, id, command, args, seq, notifier)`` to which
+            incoming rpc calls will be delegated (and the return value will be
+            sent back as the rpc response)
         :param weight:
-            the weight (normal is 1.0) for this notifier in calls to this
-            ``(object, id, cmd)`` on the network
+            the weight relative to the other notifiers registered, to turn up
+            or down the traffic sent to a node when there are overlapping
+            rpc subscriptions
         :type weight: float
 
     .. method:: rpc_unregister(object, id, cmd, destination)
 
         Unregister from receiving RPCs to this ``(object, id, cmd)``
 
-        :param object: the service from which we are unregistering
+        :param object:
+            the service name to unsubscribe from
         :type object: str
-        :param id:
-            the ``(mask, value)`` for which we will no longer receive RPCs
+        :param id: the ``(mask, value)`` mask to unsubscribe from
         :type id: tuple
-        :param cmd: the method of the destination that would have been called
+        :param cmd: the command name to unsubscribe from
         :type cmd: str
         :param destination:
-            the object from which the notifier would have calld ``getattr()``
-            with the ``cmd``
+            an object that had been a ``destination`` in one ore more previous
+            :meth:`rpc_register` or :meth:`rpc_slice` call.
 
     .. method:: rpc_unregister_all(destination)
 
@@ -169,25 +182,24 @@
         as the handler.
 
         :param destination:
-            An object that had been used as the ``destination`` in
-            :meth:`rpc_register` or :meth:`rpc_slice` calls
+            an object that had been a ``destination`` in one ore more previous
+            :meth:`rpc_register` or :meth:`rpc_slice` call.
 
     **RPC Calling**
 
     .. method:: rpc(object, id, cmd, args, timeout=None)
 
         Send an RPC request to a registered receiver for ``(object, id, cmd)``,
-        passing arguments tuple ``args``. Block waiting for the response,
-        limiting the wait to ``timeout`` seconds, if ``timeout`` is provided.
+        passing arguments ``args``. Block waiting for the response, limiting
+        the wait to ``timeout`` seconds (if ``timeout`` is provided).
 
         :param object: the service name
         :type object: str
-        :param id: the identifier matched to find a specific handler
+        :param id: the integer id used in services' ``(mask, value)`` matching
         :type id: int
-        :param cmd: the method of the service we are calling
+        :param cmd: the command name being sent
         :type cmd: str
-        :param args: arguments send in the RPC request
-        :type args: tuple
+        :param args: arguments sent in the RPC request
         :param timeout: the maximum time to wait for the response
         :type timeout: int or float
 
@@ -196,17 +208,16 @@
     .. method:: rpcs(object, id_list, cmd, args, timeout=None)
 
         Sends one RPC request per id in ``id_list``, equivalent to
-        ``len(id_list)`` ``rpc()`` calls except when it blocks it waits on them
-        all in parallel.
+        ``len(id_list)`` :meth:`rpc` calls except that when it blocks it waits on
+        them all in parallel.
 
         :param object: the service name
         :type object: str
-        :param id_list: the identifiers matched to find a specific handlers
+        :param id_list: the ``id`` list
         :type id_list: list of ints
-        :param cmd: the method of the service we are calling
+        :param cmd: the command in the rpc requests
         :type cmd: str
         :param args: arguments send in the RPC requests
-        :type args: tuple
         :param timeout: the maximum time to wait for the response
         :type timeout: int or float
 
@@ -223,15 +234,12 @@
         :type object: str
         :param id: the identifier matched to find a specific handler
         :type id: int
-        :param cmd: the method of the service we are calling
+        :param cmd: the command name to send
         :type cmd: str
-        :param args: arguments send in the RPC request
-        :type args: tuple
+        :param args: arguments sent in the RPC request
         :param source:
-            an object with a "rpc_response" method. that method must have the
-            signature ``rpc_response(object, id, cmd, results, sequence=None)``
-
-            ``object``, ``id``, and ``cmd`` will be the same as were provided
-            to the rpc_call method, ``results`` will be the result from the RPC
-            response, and sequence may be set to an int as an identifier of
-            which request to which it is responding.
+            an object with a
+            ``rpc_response(object, id, cmd, results)`` method, which will be
+            called when the response comes back. ``object``, ``id``, and
+            ``cmd`` will all be the same as the original :meth:`rpc_call`, and
+            ``results`` will be the value in the RPC response.
