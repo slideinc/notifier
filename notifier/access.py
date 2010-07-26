@@ -485,8 +485,8 @@ def execute(
 
 
 def random(
-		object, notifier, command, args=(), kwargs={},
-		timeout=None, retry=None, raw=False):
+        object, notifier, command, args=(), kwargs={},
+        timeout=None, retry=None, raw=False):
     return execute(
         object, notifier, command,
         _random.randint(0, (8 << 60) - 1),
