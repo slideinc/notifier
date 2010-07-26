@@ -18,7 +18,7 @@
         :class:`Notifier <notifier.coroutines.Notifier>` or a
         :class:`Publisher <notifier.publish.Publisher>`, or it can also be a
         :class:`SplitAccess` wrapping either real notifier.
-    :param cmd: the method of the service
+    :param cmd: the remote command to execute
     :type cmd: str
     :param ids: the id(s) for finding the RPC destination(s)
     :type ids: int or list of ints
@@ -53,7 +53,7 @@
         :class:`Notifier <notifier.coroutines.Notifier>` or a
         :class:`Publisher <notifier.publish.Publisher>`, or it can also be a
         :class:`SplitAccess` wrapping either real notifier.
-    :param cmd: the method of the service
+    :param cmd: the remote command to execute
     :type cmd: str
     :param args:
         arguments to send with the RPC -- :mod:`service <notifier.service>`

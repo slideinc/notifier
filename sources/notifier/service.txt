@@ -22,14 +22,18 @@ When an RPC request is made, it is always made with a ``object``, an ``id``,
 and a ``cmd``. For the request to be routed to a particular :class:`Server`,
 that server's ``subscription`` must match the ``object``, it must be true
 that ``(<the server's "mask"> & id) == <the server's "value">``, and finally
-that the server's :class:`Worker` subclass have a
-:func:`command <notifier.decorators.command>`-decorated method whose name is
-``cmd``. That is also the method that will be called, and whose return value
-will be sent as the RPC response.
+that the ``cmd`` in the rpc call must be ``"execute"``.
 
-So the ``bounds`` given to :class:`Server`.__init__ control which ids get
-through to a server by masking with ``bounds['mask']`` and comparing the result
-to ``bounds['value']``. For a server that is the only provider of a service and
+If the rpc call was made with :func:`notifier.access.execute` or
+:func:`notifier.access.random`, the ``cmd`` argument will be placed in the
+``command`` key in the rpc request's arguments, which will be a dictionary.
+The server's :class:`Worker` subclass must have that value as the name of a
+:func:`command <notifier.decorators.command>`-decorated method, and that method
+will then be used to handle the RPC and generate the response.
+
+The ``bounds`` given to :class:`Server`.__init__ control which ids get through
+to a server by masking with ``bounds['mask']`` and comparing the result to
+``bounds['value']``. For a server that is the only provider of a service and
 command, use ``{'mask': 0, 'value': 0}``.
 
 RPC requests are routed through the notifier network according to the

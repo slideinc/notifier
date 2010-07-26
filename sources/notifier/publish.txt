@@ -25,31 +25,29 @@
 
         :param object: the service name
         :type object: str
-        :param id: the id to match to find a suitable recipient
+        :param id: the id to match to find a recipient
         :type id: int
-        :param cmd: the method name on the recipient to call
+        :param cmd: the command to match with and send
         :type cmd: str
         :param args:
             the wirebin-serializable arguments to send along with the
             notification
-        :type args: tuple
 
     **RPC Calling**
 
     .. method:: rpc(object, id, cmd, args, timeout=None)
 
         Send an RPC request to a registered receiver for ``(object, id, cmd)``,
-        passing arguments tuple ``args``. Block waiting for the response,
-        limiting the wait to ``timeout`` seconds, if ``timeout`` is provided.
+        passing arguments ``args``. Block waiting for the response, limiting
+        the wait to ``timeout`` seconds (if ``timeout`` is provided).
 
         :param object: the service name
         :type object: str
-        :param id: the identifier matched to find a specific handler
+        :param id: the integer id used in services' ``(mask, value)`` matching
         :type id: int
-        :param cmd: the method of the service we are calling
+        :param cmd: the command name being sent
         :type cmd: str
-        :param args: arguments send in the RPC request
-        :type args: tuple
+        :param args: arguments sent in the RPC request
         :param timeout: the maximum time to wait for the response
         :type timeout: int or float
 
@@ -58,17 +56,16 @@
     .. method:: rpcs(object, id_list, cmd, args, timeout=None)
 
         Sends one RPC request per id in ``id_list``, equivalent to
-        ``len(id_list)`` ``rpc()`` calls except when it blocks it waits on them
-        all in parallel.
+        ``len(id_list)`` :meth:`rpc` calls except that when it blocks it waits on
+        them all in parallel.
 
         :param object: the service name
         :type object: str
-        :param id_list: the identifiers matched to find a specific handlers
+        :param id_list: the ``id`` list
         :type id_list: list of ints
-        :param cmd: the method of the service we are calling
+        :param cmd: the command in the rpc requests
         :type cmd: str
         :param args: arguments send in the RPC requests
-        :type args: tuple
         :param timeout: the maximum time to wait for the response
         :type timeout: int or float
 
@@ -85,15 +82,12 @@
         :type object: str
         :param id: the identifier matched to find a specific handler
         :type id: int
-        :param cmd: the method of the service we are calling
+        :param cmd: the command name to send
         :type cmd: str
-        :param args: arguments send in the RPC request
-        :type args: tuple
+        :param args: arguments sent in the RPC request
         :param source:
-            an object with a "rpc_response" method. that method must have the
-            signature ``rpc_response(object, id, cmd, results, sequence=None)``
-
-            ``object``, ``id``, and ``cmd`` will be the same as were provided
-            to the rpc_call method, ``results`` will be the result from the RPC
-            response, and sequence may be set to an int as an identifier of
-            which request to which it is responding.
+            an object with a
+            ``rpc_response(object, id, cmd, results)`` method, which will be
+            called when the response comes back. ``object``, ``id``, and
+            ``cmd`` will all be the same as the original :meth:`rpc_call`, and
+            ``results`` will be the value in the RPC response.

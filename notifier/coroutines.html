@@ -97,10 +97,11 @@ identifiers.</p>
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>object</strong> (<em>str</em>) &#8211; the service name for which we are subscribing to messages</li>
-<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination to call</li>
-<li><strong>destination</strong> &#8211; the object from which we grab the <tt class="docutils literal"><span class="pre">cmd</span></tt> method to handle the
-request.</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids (an id matches if
+<tt class="docutils literal"><span class="pre">id</span> <span class="pre">&amp;</span> <span class="pre">mask</span> <span class="pre">==</span> <span class="pre">value</span></tt>)</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command name to respond to</li>
+<li><strong>destination</strong> &#8211; an object with a method <tt class="docutils literal"><span class="pre">notify(object,</span> <span class="pre">id,</span> <span class="pre">cmd,</span> <span class="pre">args)</span></tt> to which
+incoming notifications will be delegated.</li>
 </ul>
 </td>
 </tr>
@@ -120,12 +121,14 @@ notification is sent to a random recipient.</p>
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>object</strong> (<em>str</em>) &#8211; the service name for which we are subscribing to messages</li>
-<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination to call</li>
-<li><strong>destination</strong> &#8211; the object from which we grab the <tt class="docutils literal"><span class="pre">cmd</span></tt> method to handle the
-request.</li>
-<li><strong>weight</strong> (<em>float</em>) &#8211; the weight relative to the other nodes registered for
-this event for random sends.</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids (an id matches if
+<tt class="docutils literal"><span class="pre">id</span> <span class="pre">&amp;</span> <span class="pre">mask</span> <span class="pre">==</span> <span class="pre">value</span></tt>)</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command name to respond to</li>
+<li><strong>destination</strong> &#8211; an object with a method <tt class="docutils literal"><span class="pre">notify(object,</span> <span class="pre">id,</span> <span class="pre">cmd,</span> <span class="pre">args)</span></tt> to which
+incoming notifications will be delegated.</li>
+<li><strong>weight</strong> (<em>float</em>) &#8211; the weight relative to the other notifiers registered, to turn up
+or down the traffic sent to a node when there are overlapping
+subscriptions</li>
 </ul>
 </td>
 </tr>
@@ -142,11 +145,11 @@ this event for random sends.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>object</strong> (<em>str</em>) &#8211; the service name from which we are unsubscribing</li>
-<li><strong>id</strong> (<em>tuple</em>) &#8211; the <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> for which we will no longer receive</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination to call</li>
-<li><strong>destination</strong> &#8211; the object from which we would have grabbed the <tt class="docutils literal"><span class="pre">cmd</span></tt> method to
-handle the request.</li>
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name to unsubscribe from</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; the <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> mask to unsubscribe from</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command name to unsubscribe from</li>
+<li><strong>destination</strong> &#8211; an object that had been a <tt class="docutils literal"><span class="pre">destination</span></tt> in a previous
+<a class="reference internal" href="#notifier.coroutines.Notifier.subscribe" title="notifier.coroutines.Notifier.subscribe"><tt class="xref py py-meth docutils literal"><span class="pre">subscribe()</span></tt></a> or <a class="reference internal" href="#notifier.coroutines.Notifier.slice" title="notifier.coroutines.Notifier.slice"><tt class="xref py py-meth docutils literal"><span class="pre">slice()</span></tt></a> call.</li>
 </ul>
 </td>
 </tr>
@@ -155,17 +158,17 @@ handle the request.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="notifier.coroutines.Notifier.unregister_all">
-<tt class="descname">unregister_all</tt><big>(</big><em>destination</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.unregister_all" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unregister from receiving all notifications for which the notifier is
+<dt id="notifier.coroutines.Notifier.unsubscribe_all">
+<tt class="descname">unsubscribe_all</tt><big>(</big><em>destination</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.unsubscribe_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unsubscribe from receiving all notifications for which the notifier is
 currently subscribed and delgating to <tt class="docutils literal"><span class="pre">destination</span></tt>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>destination</strong> &#8211; the object from which we would have grabbed the <tt class="docutils literal"><span class="pre">cmd</span></tt> method to
-handle the request.</li>
+<li><strong>destination</strong> &#8211; an object which had previously been the <tt class="docutils literal"><span class="pre">destination</span></tt> in one or
+more <a class="reference internal" href="#notifier.coroutines.Notifier.subscribe" title="notifier.coroutines.Notifier.subscribe"><tt class="xref py py-meth docutils literal"><span class="pre">subscribe()</span></tt></a> or <a class="reference internal" href="#notifier.coroutines.Notifier.slice" title="notifier.coroutines.Notifier.slice"><tt class="xref py py-meth docutils literal"><span class="pre">slice()</span></tt></a> calls</li>
 </ul>
 </td>
 </tr>
@@ -185,9 +188,9 @@ with <tt class="docutils literal"><span class="pre">(object,</span> <span class=
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
-<li><strong>id</strong> (<em>int</em>) &#8211; the id to match to find a suitable recipient</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method name on the recipient to call</li>
-<li><strong>args</strong> (<em>tuple</em>) &#8211; the wirebin-serializable arguments to send along with the
+<li><strong>id</strong> (<em>int</em>) &#8211; the id to match to find a recipient</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command to match with and send</li>
+<li><strong>args</strong> &#8211; the wirebin-serializable arguments to send along with the
 notification</li>
 </ul>
 </td>
@@ -207,10 +210,13 @@ notification</li>
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>object</strong> (<em>str</em>) &#8211; the service name for which we are subscribing</li>
-<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination call</li>
-<li><strong>destination</strong> &#8211; the object from which the notifier will <tt class="docutils literal"><span class="pre">getattr()</span></tt> the <tt class="docutils literal"><span class="pre">cmd</span></tt>
-to get the function to use to handle the RPC request.</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids (an id matches if
+<tt class="docutils literal"><span class="pre">id</span> <span class="pre">&amp;</span> <span class="pre">mask</span> <span class="pre">==</span> <span class="pre">value</span></tt>)</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command name to respond to</li>
+<li><strong>destination</strong> &#8211; an object with a method
+<tt class="docutils literal"><span class="pre">rpc_call(object,</span> <span class="pre">id,</span> <span class="pre">command,</span> <span class="pre">args,</span> <span class="pre">seq,</span> <span class="pre">notifier)</span></tt> to which
+incoming rpc calls will be delegated (and the return value will be
+sent back as the rpc response)</li>
 </ul>
 </td>
 </tr>
@@ -230,12 +236,16 @@ selected.</p>
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>object</strong> (<em>str</em>) &#8211; the service name for which we are subscribing</li>
-<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination call</li>
-<li><strong>destination</strong> &#8211; the object from which the notifier will <tt class="docutils literal"><span class="pre">getattr()</span></tt> the <tt class="docutils literal"><span class="pre">cmd</span></tt>
-to get the function to use to handle the RPC request.</li>
-<li><strong>weight</strong> (<em>float</em>) &#8211; the weight (normal is 1.0) for this notifier in calls to this
-<tt class="docutils literal"><span class="pre">(object,</span> <span class="pre">id,</span> <span class="pre">cmd)</span></tt> on the network</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; a <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> pair to match ids (an id matches if
+<tt class="docutils literal"><span class="pre">id</span> <span class="pre">&amp;</span> <span class="pre">mask</span> <span class="pre">==</span> <span class="pre">value</span></tt>)</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command name to respond to</li>
+<li><strong>destination</strong> &#8211; an object with a method
+<tt class="docutils literal"><span class="pre">rpc_call(object,</span> <span class="pre">id,</span> <span class="pre">command,</span> <span class="pre">args,</span> <span class="pre">seq,</span> <span class="pre">notifier)</span></tt> to which
+incoming rpc calls will be delegated (and the return value will be
+sent back as the rpc response)</li>
+<li><strong>weight</strong> (<em>float</em>) &#8211; the weight relative to the other notifiers registered, to turn up
+or down the traffic sent to a node when there are overlapping
+rpc subscriptions</li>
 </ul>
 </td>
 </tr>
@@ -252,11 +262,11 @@ to get the function to use to handle the RPC request.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>object</strong> (<em>str</em>) &#8211; the service from which we are unregistering</li>
-<li><strong>id</strong> (<em>tuple</em>) &#8211; the <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> for which we will no longer receive RPCs</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the destination that would have been called</li>
-<li><strong>destination</strong> &#8211; the object from which the notifier would have calld <tt class="docutils literal"><span class="pre">getattr()</span></tt>
-with the <tt class="docutils literal"><span class="pre">cmd</span></tt></li>
+<li><strong>object</strong> (<em>str</em>) &#8211; the service name to unsubscribe from</li>
+<li><strong>id</strong> (<em>tuple</em>) &#8211; the <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> mask to unsubscribe from</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command name to unsubscribe from</li>
+<li><strong>destination</strong> &#8211; an object that had been a <tt class="docutils literal"><span class="pre">destination</span></tt> in one ore more previous
+<a class="reference internal" href="#notifier.coroutines.Notifier.rpc_register" title="notifier.coroutines.Notifier.rpc_register"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_register()</span></tt></a> or <a class="reference internal" href="#notifier.coroutines.Notifier.rpc_slice" title="notifier.coroutines.Notifier.rpc_slice"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_slice()</span></tt></a> call.</li>
 </ul>
 </td>
 </tr>
@@ -274,8 +284,8 @@ as the handler.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>destination</strong> &#8211; An object that had been used as the <tt class="docutils literal"><span class="pre">destination</span></tt> in
-<a class="reference internal" href="#notifier.coroutines.Notifier.rpc_register" title="notifier.coroutines.Notifier.rpc_register"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_register()</span></tt></a> or <a class="reference internal" href="#notifier.coroutines.Notifier.rpc_slice" title="notifier.coroutines.Notifier.rpc_slice"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_slice()</span></tt></a> calls</li>
+<li><strong>destination</strong> &#8211; an object that had been a <tt class="docutils literal"><span class="pre">destination</span></tt> in one ore more previous
+<a class="reference internal" href="#notifier.coroutines.Notifier.rpc_register" title="notifier.coroutines.Notifier.rpc_register"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_register()</span></tt></a> or <a class="reference internal" href="#notifier.coroutines.Notifier.rpc_slice" title="notifier.coroutines.Notifier.rpc_slice"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_slice()</span></tt></a> call.</li>
 </ul>
 </td>
 </tr>
@@ -288,17 +298,17 @@ as the handler.</p>
 <dt id="notifier.coroutines.Notifier.rpc">
 <tt class="descname">rpc</tt><big>(</big><em>object</em>, <em>id</em>, <em>cmd</em>, <em>args</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an RPC request to a registered receiver for <tt class="docutils literal"><span class="pre">(object,</span> <span class="pre">id,</span> <span class="pre">cmd)</span></tt>,
-passing arguments tuple <tt class="docutils literal"><span class="pre">args</span></tt>. Block waiting for the response,
-limiting the wait to <tt class="docutils literal"><span class="pre">timeout</span></tt> seconds, if <tt class="docutils literal"><span class="pre">timeout</span></tt> is provided.</p>
+passing arguments <tt class="docutils literal"><span class="pre">args</span></tt>. Block waiting for the response, limiting
+the wait to <tt class="docutils literal"><span class="pre">timeout</span></tt> seconds (if <tt class="docutils literal"><span class="pre">timeout</span></tt> is provided).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
-<li><strong>id</strong> (<em>int</em>) &#8211; the identifier matched to find a specific handler</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
-<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC request</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; the integer id used in services&#8217; <tt class="docutils literal"><span class="pre">(mask,</span> <span class="pre">value)</span></tt> matching</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command name being sent</li>
+<li><strong>args</strong> &#8211; arguments sent in the RPC request</li>
 <li><strong>timeout</strong> (<em>int or float</em>) &#8211; the maximum time to wait for the response</li>
 </ul>
 </td>
@@ -314,17 +324,17 @@ limiting the wait to <tt class="docutils literal"><span class="pre">timeout</spa
 <dt id="notifier.coroutines.Notifier.rpcs">
 <tt class="descname">rpcs</tt><big>(</big><em>object</em>, <em>id_list</em>, <em>cmd</em>, <em>args</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#notifier.coroutines.Notifier.rpcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sends one RPC request per id in <tt class="docutils literal"><span class="pre">id_list</span></tt>, equivalent to
-<tt class="docutils literal"><span class="pre">len(id_list)</span></tt> <tt class="docutils literal"><span class="pre">rpc()</span></tt> calls except when it blocks it waits on them
-all in parallel.</p>
+<tt class="docutils literal"><span class="pre">len(id_list)</span></tt> <a class="reference internal" href="#notifier.coroutines.Notifier.rpc" title="notifier.coroutines.Notifier.rpc"><tt class="xref py py-meth docutils literal"><span class="pre">rpc()</span></tt></a> calls except that when it blocks it waits on
+them all in parallel.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
-<li><strong>id_list</strong> (<em>list of ints</em>) &#8211; the identifiers matched to find a specific handlers</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
-<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC requests</li>
+<li><strong>id_list</strong> (<em>list of ints</em>) &#8211; the <tt class="docutils literal"><span class="pre">id</span></tt> list</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command in the rpc requests</li>
+<li><strong>args</strong> &#8211; arguments send in the RPC requests</li>
 <li><strong>timeout</strong> (<em>int or float</em>) &#8211; the maximum time to wait for the response</li>
 </ul>
 </td>
@@ -349,15 +359,13 @@ method for when the response comes in.</p>
 <tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>object</strong> (<em>str</em>) &#8211; the service name</li>
 <li><strong>id</strong> (<em>int</em>) &#8211; the identifier matched to find a specific handler</li>
-<li><strong>cmd</strong> (<em>str</em>) &#8211; the method of the service we are calling</li>
-<li><strong>args</strong> (<em>tuple</em>) &#8211; arguments send in the RPC request</li>
-<li><strong>source</strong> &#8211; <p>an object with a &#8220;rpc_response&#8221; method. that method must have the
-signature <tt class="docutils literal"><span class="pre">rpc_response(object,</span> <span class="pre">id,</span> <span class="pre">cmd,</span> <span class="pre">results,</span> <span class="pre">sequence=None)</span></tt></p>
-<p><tt class="docutils literal"><span class="pre">object</span></tt>, <tt class="docutils literal"><span class="pre">id</span></tt>, and <tt class="docutils literal"><span class="pre">cmd</span></tt> will be the same as were provided
-to the rpc_call method, <tt class="docutils literal"><span class="pre">results</span></tt> will be the result from the RPC
-response, and sequence may be set to an int as an identifier of
-which request to which it is responding.</p>
-</li>
+<li><strong>cmd</strong> (<em>str</em>) &#8211; the command name to send</li>
+<li><strong>args</strong> &#8211; arguments sent in the RPC request</li>
+<li><strong>source</strong> &#8211; an object with a
+<tt class="docutils literal"><span class="pre">rpc_response(object,</span> <span class="pre">id,</span> <span class="pre">cmd,</span> <span class="pre">results)</span></tt> method, which will be
+called when the response comes back. <tt class="docutils literal"><span class="pre">object</span></tt>, <tt class="docutils literal"><span class="pre">id</span></tt>, and
+<tt class="docutils literal"><span class="pre">cmd</span></tt> will all be the same as the original <a class="reference internal" href="#notifier.coroutines.Notifier.rpc_call" title="notifier.coroutines.Notifier.rpc_call"><tt class="xref py py-meth docutils literal"><span class="pre">rpc_call()</span></tt></a>, and
+<tt class="docutils literal"><span class="pre">results</span></tt> will be the value in the RPC response.</li>
 </ul>
 </td>
 </tr>

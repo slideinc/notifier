@@ -68,13 +68,16 @@ receive RPC calls, and a bounds dictionary, which contains <tt class="docutils l
 and a <tt class="docutils literal"><span class="pre">cmd</span></tt>. For the request to be routed to a particular <a class="reference internal" href="#notifier.service.Server" title="notifier.service.Server"><tt class="xref py py-class docutils literal"><span class="pre">Server</span></tt></a>,
 that server&#8217;s <tt class="docutils literal"><span class="pre">subscription</span></tt> must match the <tt class="docutils literal"><span class="pre">object</span></tt>, it must be true
 that <tt class="docutils literal"><span class="pre">(&lt;the</span> <span class="pre">server's</span> <span class="pre">&quot;mask&quot;&gt;</span> <span class="pre">&amp;</span> <span class="pre">id)</span> <span class="pre">==</span> <span class="pre">&lt;the</span> <span class="pre">server's</span> <span class="pre">&quot;value&quot;&gt;</span></tt>, and finally
-that the server&#8217;s <a class="reference internal" href="#notifier.service.Worker" title="notifier.service.Worker"><tt class="xref py py-class docutils literal"><span class="pre">Worker</span></tt></a> subclass have a
-<a class="reference internal" href="decorators.html#notifier.decorators.command" title="notifier.decorators.command"><tt class="xref py py-func docutils literal"><span class="pre">command</span></tt></a>-decorated method whose name is
-<tt class="docutils literal"><span class="pre">cmd</span></tt>. That is also the method that will be called, and whose return value
-will be sent as the RPC response.</p>
-<p>So the <tt class="docutils literal"><span class="pre">bounds</span></tt> given to <a class="reference internal" href="#notifier.service.Server" title="notifier.service.Server"><tt class="xref py py-class docutils literal"><span class="pre">Server</span></tt></a>.__init__ control which ids get
-through to a server by masking with <tt class="docutils literal"><span class="pre">bounds['mask']</span></tt> and comparing the result
-to <tt class="docutils literal"><span class="pre">bounds['value']</span></tt>. For a server that is the only provider of a service and
+that the <tt class="docutils literal"><span class="pre">cmd</span></tt> in the rpc call must be <tt class="docutils literal"><span class="pre">&quot;execute&quot;</span></tt>.</p>
+<p>If the rpc call was made with <a class="reference internal" href="access.html#notifier.access.execute" title="notifier.access.execute"><tt class="xref py py-func docutils literal"><span class="pre">notifier.access.execute()</span></tt></a> or
+<a class="reference internal" href="access.html#notifier.access.random" title="notifier.access.random"><tt class="xref py py-func docutils literal"><span class="pre">notifier.access.random()</span></tt></a>, the <tt class="docutils literal"><span class="pre">cmd</span></tt> argument will be placed in the
+<tt class="docutils literal"><span class="pre">command</span></tt> key in the rpc request&#8217;s arguments, which will be a dictionary.
+The server&#8217;s <a class="reference internal" href="#notifier.service.Worker" title="notifier.service.Worker"><tt class="xref py py-class docutils literal"><span class="pre">Worker</span></tt></a> subclass must have that value as the name of a
+<a class="reference internal" href="decorators.html#notifier.decorators.command" title="notifier.decorators.command"><tt class="xref py py-func docutils literal"><span class="pre">command</span></tt></a>-decorated method, and that method
+will then be used to handle the RPC and generate the response.</p>
+<p>The <tt class="docutils literal"><span class="pre">bounds</span></tt> given to <a class="reference internal" href="#notifier.service.Server" title="notifier.service.Server"><tt class="xref py py-class docutils literal"><span class="pre">Server</span></tt></a>.__init__ control which ids get through
+to a server by masking with <tt class="docutils literal"><span class="pre">bounds['mask']</span></tt> and comparing the result to
+<tt class="docutils literal"><span class="pre">bounds['value']</span></tt>. For a server that is the only provider of a service and
 command, use <tt class="docutils literal"><span class="pre">{'mask':</span> <span class="pre">0,</span> <span class="pre">'value':</span> <span class="pre">0}</span></tt>.</p>
 <p>RPC requests are routed through the notifier network according to the
 <tt class="docutils literal"><span class="pre">object</span></tt>, <tt class="docutils literal"><span class="pre">id</span></tt>,</p>
