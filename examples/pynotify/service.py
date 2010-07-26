@@ -47,7 +47,7 @@ def main():
 
     handler = Handler()
 
-    notifier.slice(GUI_NOTIFY, (0, 0), CMD_NAME, handler)
+    notifier.subscribe(GUI_NOTIFY, (0, 0), CMD_NAME, handler)
     notifier.set_log_level(logging.INFO)
 
     signal.signal(signal.SIGINT, lambda signum, frame: notifier.shutdown())
