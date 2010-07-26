@@ -9,7 +9,7 @@ NOTIFIERS = [('localhost', 7000)]
 
 
 def main():
-    pub = publish.SimpleNotifyPublisher(NOTIFIERS)
+    pub = publish.Publisher(NOTIFIERS)
 
     while 1:
         string = raw_input()
@@ -17,10 +17,10 @@ def main():
         if not string.strip():
             break
 
-        result = access._execute(
-                'echo',
-                pub,
+        result = access.execute(
                 ECHO,
+                pub,
+                'echo',
                 hash(string),
                 args=(string,))
 

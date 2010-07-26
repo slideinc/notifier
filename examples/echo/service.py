@@ -4,7 +4,7 @@
 import logging
 import signal
 
-from gogreen import backdoor, coro
+from gogreen import coro
 from notifier import coroutines, decorators, service
 
 
@@ -24,17 +24,17 @@ class EchoServer(service.Server):
 
 
 def main():
-    ns = coroutines.Notifier(args=(NOTIFIERS,), kwargs={'port': 7000})
-    ns.start()
+    notif = coroutines.Notifier(args=(NOTIFIERS,), kwargs={'port': 7000})
+    notif.start()
 
     server = EchoServer(
             100,
-            notifier=ns,
+            notifier=notif,
             bounds={'mask': 0, 'value': 0},
             loglevel=logging.INFO)
 
     def shutdown(signum, frame):
-        coro.spawn(lambda: server.drain() and ns.shutdown())
+        coro.spawn(lambda: server.drain() and notif.shutdown())
     signal.signal(signal.SIGINT, shutdown)
 
     coro.event_loop()
