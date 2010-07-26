@@ -16,7 +16,6 @@ Contents:
    notifier/access
    notifier/service
    notifier/decorators
-   notifier/error
 
 
 Indices and tables
